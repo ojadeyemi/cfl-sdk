@@ -21,7 +21,7 @@ PLAYER_STAT_ENDPOINT = "/stats/players/{player_stats_id}"
 PLAYER_PIMS_ENDPOINT = "/stats/players/pims_player/{player_id}"
 
 # Default parameters
-DEFAULT_SEASON = "2024"
+DEFAULT_SEASON = 2024
 DEFAULT_LIMIT = 100
 DEFAULT_PAGE = 1
 DEFAULT_TIMEOUT = 10

@@ -11,6 +11,7 @@ from .constants import (
     BASE_URL,
     DEFAULT_LIMIT,
     DEFAULT_PAGE,
+    DEFAULT_SEASON,
     DEFAULT_TIMEOUT,
     FIXTURES_ENDPOINT,
     LEDGER_ENDPOINT,
@@ -109,15 +110,15 @@ class CFLClient:
                 message = str(e)
 
             if status_code == 404:
-                raise CFLAPINotFoundError(message)
+                raise CFLAPINotFoundError(message) from e
             elif status_code in (401, 403):
-                raise CFLAPIAuthenticationError(status_code, message)
+                raise CFLAPIAuthenticationError(status_code, message) from e
             elif status_code == 400:
-                raise CFLAPIValidationError(message)
+                raise CFLAPIValidationError(message) from e
             elif status_code >= 500:
-                raise CFLAPIServerError(status_code, message)
+                raise CFLAPIServerError(status_code, message) from e
             else:
-                raise CFLAPIValidationError(message)
+                raise CFLAPIValidationError(message) from e
 
         try:
             return response.json()
@@ -164,11 +165,11 @@ class CFLClient:
 
         except httpx.ConnectError as e:
             logger.error(f"Connection error: {e}")
-            raise CFLAPIConnectionError(f"Failed to connect: {e}")
+            raise CFLAPIConnectionError(f"Failed to connect: {e}") from e
 
         except httpx.TimeoutException as e:
             logger.error(f"Request timed out: {e}")
-            raise CFLAPITimeoutError(f"Request timed out: {e}")
+            raise CFLAPITimeoutError(f"Request timed out: {e}") from e
 
         except Exception as e:
             logger.error(f"Request failed: {e}")
@@ -507,7 +508,7 @@ class CFLClient:
         endpoint = PLAYER_PIMS_ENDPOINT.format(player_id=player_id)
         return self._get(endpoint)
 
-    def get_standings(self, year: int = 2024) -> Standings:
+    def get_standings(self, year: int = DEFAULT_SEASON) -> Standings:
         """Get Standings data of a season
 
         Args:

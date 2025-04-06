@@ -4,7 +4,6 @@ from datetime import datetime
 from typing import TypedDict
 
 
-# Common types
 class Metadata(TypedDict):
     created_at: datetime
     revision_at: datetime
@@ -29,7 +28,6 @@ class Genius(TypedDict):
     last_update: datetime
 
 
-# Team types
 class Team(TypedDict):
     ID: int
     name: str
