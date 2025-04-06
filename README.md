@@ -84,9 +84,6 @@ fixtures = client.get_fixtures(season_id=123)
 # Get all rosters
 rosters = client.get_rosters()
 
-# Get rosters for a team
-rosters = client.get_rosters(team_id=123)
-
 # Get specific roster
 roster = client.get_roster(roster_id=123)
 ```
@@ -117,13 +114,10 @@ team_stat = client.get_team_stat(team_stats_id=123)
 # Get player stats
 player_stats = client.get_player_stats()
 
-# Get player stats for a season and team
-player_stats = client.get_player_stats(season_id=123, team_id=456)
-
 # Get specific player stats
 player_stat = client.get_player_stat(player_stats_id=123)
 
-player_pims = client.get_player_pims(player_id=123)
+player_stat = client.get_player_pims(player_id=123)
 ```
 
 ### Standings

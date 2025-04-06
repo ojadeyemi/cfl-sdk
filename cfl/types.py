@@ -22,7 +22,7 @@ class Location(TypedDict):
 
 
 class Genius(TypedDict):
-    ID: int
+    id: int
     error: str | None
     messages: list
     last_update: datetime
@@ -95,10 +95,10 @@ class FixtureRelations(TypedDict):
 class Fixture(TypedDict):
     ID: int
     season_id: int
-    season_game_count: int
-    home_team_id: int
-    home_game_count: int
-    away_team_id: int
+    season_game_count: int | None
+    home_team_id: int | None
+    home_game_count: int | None
+    away_team_id: int | None
     week: int
     game_type_id: int
     start_at_local: str
@@ -114,7 +114,7 @@ class RosterPlayer(TypedDict):
     player_id: int
     firstname: str
     lastname: str
-    jersey_no: int
+    jersey_no: int | None
     birthdate: str
     height_ft: int
     height_in: int
@@ -129,7 +129,7 @@ class RosterPlayer(TypedDict):
     no_set: bool
     team_id: list[int]
     teams: list[str]
-    files: list[dict]
+    files: list
     metadata: Metadata
 
 
@@ -152,7 +152,7 @@ class LedgerTransaction(TypedDict):
     position: str
     nationality: str
     college: str
-    team_abbr: str
+    team_abbr: str | None
     action: str
     is_distributed: bool
     player_id: int
@@ -259,10 +259,6 @@ class SeasonPlayerStats(TypedDict):
 
 class FixturePlayerStats(TypedDict):
     hasParticipated: bool
-    penaltiesChargedDefense: int
-    tackles: int
-    tacklesSolo: int
-    tacklesSpecialTeam: int
     wasStarter: bool
 
 
@@ -280,7 +276,7 @@ class FixturePlayerStatsWrapper(TypedDict):
     opponent_team_abbreviation: str
 
 
-class PlayerStats(TypedDict):
+class PlayerStats(TypedDict, total=False):
     ID: int
     seasons: list[SeasonPlayerStats]
     fixtures: list[FixturePlayerStatsWrapper]
