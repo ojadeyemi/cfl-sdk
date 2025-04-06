@@ -1,0 +1,563 @@
+# type: ignore
+"""CFL API Client for accessing CFL data."""
+
+import json
+from urllib.parse import urljoin
+
+import httpx
+from bs4 import BeautifulSoup
+
+from .constants import (
+    BASE_URL,
+    DEFAULT_LIMIT,
+    DEFAULT_PAGE,
+    DEFAULT_TIMEOUT,
+    FIXTURES_ENDPOINT,
+    LEDGER_ENDPOINT,
+    PLAYER_PIMS_ENDPOINT,
+    PLAYER_STAT_ENDPOINT,
+    PLAYER_STATS_ENDPOINT,
+    ROSTER_ENDPOINT,
+    ROSTERS_ENDPOINT,
+    SEASON_ENDPOINT,
+    SEASON_FIXTURES_ENDPOINT,
+    SEASONS_ENDPOINT,
+    TEAM_ENDPOINT,
+    TEAM_STAT_ENDPOINT,
+    TEAM_STATS_ENDPOINT,
+    TEAMS_ENDPOINT,
+    VENUE_ENDPOINT,
+    VENUES_ENDPOINT,
+)
+from .exceptions import (
+    CFLAPIAuthenticationError,
+    CFLAPIConnectionError,
+    CFLAPINotFoundError,
+    CFLAPIServerError,
+    CFLAPITimeoutError,
+    CFLAPIValidationError,
+)
+from .logger import logger
+from .types import Fixture, LedgerTransaction, PlayerStats, Roster, Season, Standings, Team, TeamStats, Venue
+
+
+class CFLClient:
+    """Client for interacting with the CFL API."""
+
+    def __init__(
+        self,
+        base_url: str = BASE_URL,
+        timeout: int = DEFAULT_TIMEOUT,
+    ):
+        """Initialize CFL API client.
+
+        Args:
+            base_url: API base URL
+            timeout: Request timeout in seconds
+        """
+
+        self.base_url = base_url
+        self.timeout = timeout
+        self.client = httpx.Client(timeout=timeout)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
+
+    def close(self):
+        """Close HTTP client."""
+        self.client.close()
+        logger.debug("Closed HTTP client")
+
+    def _url(self, endpoint: str) -> str:
+        """Build full URL from endpoint.
+
+        Args:
+            endpoint: API endpoint path
+
+        Returns:
+            Complete URL
+        """
+
+        return urljoin(self.base_url, f"/api/{endpoint.lstrip('/')}")
+
+    def _handle_response(self, response: httpx.Response) -> dict:
+        """Process API response and handle errors.
+
+        Args:
+            response: HTTP response
+
+        Returns:
+            Response JSON data
+
+        Raises:
+            CFLAPIResponseError: For API errors
+        """
+        logger.debug(f"Response status: {response.status_code}")
+
+        try:
+            response.raise_for_status()
+        except httpx.HTTPStatusError as e:
+            status_code = e.response.status_code
+
+            try:
+                error_data = e.response.json()
+                message = error_data.get("message", str(e))
+            except (ValueError, KeyError):
+                message = str(e)
+
+            if status_code == 404:
+                raise CFLAPINotFoundError(message)
+            elif status_code in (401, 403):
+                raise CFLAPIAuthenticationError(status_code, message)
+            elif status_code == 400:
+                raise CFLAPIValidationError(message)
+            elif status_code >= 500:
+                raise CFLAPIServerError(status_code, message)
+            else:
+                raise CFLAPIValidationError(message)
+
+        try:
+            return response.json()
+
+        except json.JSONDecodeError:
+            logger.warning("Failed to decode JSON response")
+
+            return {}
+
+    def _request(
+        self,
+        method: str,
+        endpoint: str,
+        params: dict | None = None,
+        json_data: dict | None = None,
+    ) -> dict:
+        """Send HTTP request to the API.
+
+        Args:
+            method: HTTP method
+            endpoint: API endpoint
+            params: Query parameters
+            json_data: JSON request body
+
+        Returns:
+            Response JSON data
+
+        Raises:
+            CFLAPIConnectionError: For connection failures
+            CFLAPITimeoutError: For request timeouts
+        """
+        url = self._url(endpoint)
+        logger.debug(f"{method} {url}")
+
+        try:
+            response = self.client.request(
+                method=method,
+                url=url,
+                params=params,
+                json=json_data,
+            )
+
+            return self._handle_response(response)
+
+        except httpx.ConnectError as e:
+            logger.error(f"Connection error: {e}")
+            raise CFLAPIConnectionError(f"Failed to connect: {e}")
+
+        except httpx.TimeoutException as e:
+            logger.error(f"Request timed out: {e}")
+            raise CFLAPITimeoutError(f"Request timed out: {e}")
+
+        except Exception as e:
+            logger.error(f"Request failed: {e}")
+            raise
+
+    def _get(
+        self,
+        endpoint: str,
+        params: dict | None = None,
+    ) -> dict:
+        """Send GET request to API.
+
+        Args:
+            endpoint: API endpoint
+            params: Query parameters
+
+        Returns:
+            Response JSON data
+        """
+
+        return self._request("GET", endpoint, params=params)
+
+    def _paginated_get(
+        self,
+        endpoint: str,
+        params: dict | None = None,
+        limit: int = DEFAULT_LIMIT,
+        page: int = DEFAULT_PAGE,
+    ) -> list[dict]:
+        """Get all pages for a paginated endpoint.
+
+        Args:
+            endpoint: API endpoint
+            params: Additional query parameters
+            limit: Items per page
+            page: Starting page number
+
+        Returns:
+            List of all items
+        """
+        all_items = []
+        current_page = page
+
+        params = params or {}
+        params["limit"] = limit
+
+        while True:
+            params["page"] = current_page
+            response = self._get(endpoint, params)
+
+            # Extract response data
+            data = response
+
+            # Stop if no more data
+            if not data:
+                break
+
+            all_items.extend(data)
+
+            # Try next page
+            current_page += 1
+
+            # Safety check - stop after 10 pages to prevent infinite loops
+            if current_page > page + 10:
+                logger.warning(f"Stopped pagination after 10 pages for {endpoint}")
+                break
+
+        return all_items
+
+    def get_teams(
+        self,
+    ) -> list[Team]:
+        """Get all CFL teams.
+
+        Args:
+            page: Page number
+            limit: Items per page
+
+        Returns:
+            List of teams
+        """
+        teams = self._get(
+            TEAMS_ENDPOINT,
+        )
+        return teams
+
+    def get_team(self, team_id: int) -> Team:
+        """Get team details by ID.
+
+        Args:
+            team_id: Team ID
+
+        Returns:
+            Team details
+        """
+        endpoint = TEAM_ENDPOINT.format(team_id=team_id)
+
+        return self._get(endpoint)
+
+    def get_venues(self, page: int = DEFAULT_PAGE, limit: int = DEFAULT_LIMIT) -> list[Venue]:
+        """Get all CFL venues.
+
+        Args:
+            page: Page number
+            limit: Items per page
+
+        Returns:
+            List of venues
+        """
+        venues = self._paginated_get(
+            VENUES_ENDPOINT,
+            params={"page": page, "limit": limit},
+        )
+
+        return venues
+
+    def get_venue(self, venue_id: int) -> Venue:
+        """Get venue details by ID.
+
+        Args:
+            venue_id: Venue ID
+
+        Returns:
+            Venue details
+        """
+        endpoint = VENUE_ENDPOINT.format(venue_id=venue_id)
+
+        return self._get(endpoint)
+
+    def get_seasons(self, page: int = DEFAULT_PAGE, limit: int = DEFAULT_LIMIT) -> list[Season]:
+        """Get all seasons.
+
+        Args:
+            page: Page number
+            limit: Items per page
+
+        Returns:
+            List of seasons
+        """
+        seasons = self._paginated_get(
+            SEASONS_ENDPOINT,
+            params={"page": page, "limit": limit},
+        )
+
+        return seasons
+
+    def get_season(self, season_id: int) -> Season:
+        """Get season details by ID.
+
+        Args:
+            season_id: Season ID
+
+        Returns:
+            Season details
+        """
+        endpoint = SEASON_ENDPOINT.format(season_id=season_id)
+
+        return self._get(endpoint)
+
+    def get_fixtures(
+        self,
+        season_id: int | None = None,
+        page: int = DEFAULT_PAGE,
+        limit: int = DEFAULT_LIMIT,
+    ) -> list[Fixture]:
+        """Get all fixtures (games).
+
+        Args:
+            season_id: Optional season filter
+            page: Page number
+            limit: Items per page
+
+        Returns:
+            List of fixtures
+        """
+        if season_id:
+            endpoint = SEASON_FIXTURES_ENDPOINT.format(season_id=season_id)
+        else:
+            endpoint = FIXTURES_ENDPOINT
+
+        fixtures = self._paginated_get(
+            endpoint,
+            params={"page": page, "limit": limit},
+        )
+
+        return fixtures
+
+    def get_rosters(
+        self,
+    ) -> list[Roster]:
+        """Get all rosters.
+
+        Args:
+            team_id: Optional team filter
+            page: Page number
+            limit: Items per page
+
+        Returns:
+            List of rosters
+        """
+
+        rosters = self._get(
+            ROSTERS_ENDPOINT,
+        )
+
+        return rosters
+
+    def get_roster(self, roster_id: int) -> Roster:
+        """Get roster details by ID.
+
+        Args:
+            roster_id: Roster ID
+
+        Returns:
+            Roster details
+        """
+        endpoint = ROSTER_ENDPOINT.format(roster_id=roster_id)
+
+        return self._get(endpoint)
+
+    def get_ledger(
+        self,
+        year: int,
+    ) -> list[LedgerTransaction]:
+        """Get player transactions.
+
+        Args:
+            year: Year to fetch (e.g., 2024)
+            page: Page number
+            limit: Items per page
+
+        Returns:
+            List of transactions
+        """
+        endpoint = LEDGER_ENDPOINT.format(year=year)
+        transactions = self._get(
+            endpoint,
+        )
+
+        return transactions
+
+    def get_team_stats(
+        self,
+        season_id: int | None = None,
+        page: int = DEFAULT_PAGE,
+        limit: int = DEFAULT_LIMIT,
+    ) -> list[TeamStats]:
+        """Get team statistics.
+
+        Args:
+            season_id: Optional season filter
+            page: Page number
+            limit: Items per page
+
+        Returns:
+            List of team statistics
+        """
+        params = {"page": page, "limit": limit}
+        if season_id:
+            params["season_id"] = season_id
+
+        stats = self._paginated_get(
+            TEAM_STATS_ENDPOINT,
+            params=params,
+        )
+
+        return stats
+
+    def get_team_stat(self, team_stats_id: int, season_id: int | None = None) -> TeamStats:
+        """Get team stats by ID.
+
+        Args:
+            team_stats_id: Team stats ID
+
+        Returns:
+            Team statistics
+        """
+        endpoint = TEAM_STAT_ENDPOINT.format(team_stats_id=team_stats_id)
+        params = {}
+        if season_id:
+            params["season_id"] = season_id
+
+        return self._get(endpoint, params=params)
+
+    def get_player_stats(
+        self,
+        season_id: int | None = None,
+        team_id: int | None = None,
+        page: int = DEFAULT_PAGE,
+        limit: int = DEFAULT_LIMIT,
+    ) -> list[PlayerStats]:
+        """Get player statistics.
+
+        Args:
+            season_id: Optional season filter
+            team_id: Optional team filter
+            page: Page number
+            limit: Items per page
+
+        Returns:
+            List of player statistics
+        """
+        params = {"page": page, "limit": limit}
+        if season_id:
+            params["season_id"] = season_id
+        if team_id:
+            params["team_id"] = team_id
+
+        stats = self._paginated_get(
+            PLAYER_STATS_ENDPOINT,
+            params=params,
+        )
+        return stats
+
+    def get_player_stat(self, player_stats_id: int) -> PlayerStats:
+        """Get player stats by ID.
+
+        Args:
+            player_stats_id: Player stats ID
+
+        Returns:
+            Player statistics
+        """
+        endpoint = PLAYER_STAT_ENDPOINT.format(player_stats_id=player_stats_id)
+        return self._get(endpoint)
+
+    def get_player_pims(self, player_id: int) -> PlayerStats:
+        """Get player stats by PIMS ID.
+
+        Args:
+            player_id: Player ID
+
+        Returns:
+            Player statistics
+        """
+        endpoint = PLAYER_PIMS_ENDPOINT.format(player_id=player_id)
+        return self._get(endpoint)
+
+    def get_standings(self, year: int = 2024) -> Standings:
+        """Get Standings data of a season
+
+        Args:
+            year: Season year (valid options: 2023-2025)
+
+        Returns:
+            Dictionary containing standings data by division
+        """
+
+        # Validate year range
+        if year < 2023 or year > 2025:
+            raise ValueError("Year must be between 2023 and 2025")
+
+        url = f"https://www.cfl.ca/{year}standings"
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+            "Accept": "text/html,application/xhtml+xml,application/xml",
+            "Accept-Language": "en-US,en;q=0.9",
+        }
+
+        standings: Standings = {"WEST_DIVISION": [], "EAST_DIVISION": []}
+
+        try:
+            with httpx.Client(timeout=10.0) as client:
+                response = client.get(url, headers=headers)
+                response.raise_for_status()
+
+            soup = BeautifulSoup(response.text, "html.parser")
+            tables = soup.find_all("table")
+
+            if not tables:
+                return standings
+
+            for i, table in enumerate(tables):
+                if i > 1:  # Only process first two tables
+                    break
+
+                division = "WEST_DIVISION" if i == 0 else "EAST_DIVISION"
+                rows = table.find_all("tr")
+
+                if not rows:
+                    continue
+
+                headers = [header.text.strip() for header in rows[0].find_all("td")]
+
+                for row in rows[1:]:
+                    team_data = {headers[j]: cell.text.strip() for j, cell in enumerate(row.find_all("td"))}
+                    standings[division].append(team_data)
+
+        except (httpx.HTTPStatusError, httpx.RequestError, Exception):
+            return standings
+
+        return standings

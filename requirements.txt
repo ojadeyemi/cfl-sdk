@@ -1,0 +1,2 @@
+beautigulsoup4==4.13.3
+httpx[http2]==0.28.1

@@ -1,0 +1,180 @@
+# CFL SDK
+
+A modern Python SDK for the CFL API using httpx.
+
+## Features
+
+- Full type hints using modern Python typing
+- Complete API coverage
+- Pagination handling built-in
+- Easy to use client interface
+- Error handling and logging
+
+## Installation
+
+```bash
+pip install cfl-sdk
+```
+
+## Quick Start
+
+```python
+from cfl_sdk import CFLClient
+
+# Create client
+client = CFLClient()
+
+# Get teams
+teams = client.get_teams()
+for team in teams:
+    print(f"{team['name']} ({team['abbreviation']})")
+
+# Get fixtures for a season
+fixtures = client.get_fixtures(season_id=123)
+
+# Get player stats
+player_stats = client.get_player_stats(season_id=123, team_id=456)
+```
+
+## API Reference
+
+### Teams
+
+```python
+# Get all teams
+teams = client.get_teams()
+
+# Get specific team
+team = client.get_team(team_id=123)
+```
+
+### Venues
+
+```python
+# Get all venues
+venues = client.get_venues()
+
+# Get specific venue
+venue = client.get_venue(venue_id=123)
+```
+
+### Seasons
+
+```python
+# Get all seasons
+seasons = client.get_seasons()
+
+# Get specific season
+season = client.get_season(season_id=123)
+```
+
+### Fixtures (Games)
+
+```python
+# Get all fixtures
+fixtures = client.get_fixtures()
+
+# Get fixtures for a season
+fixtures = client.get_fixtures(season_id=123)
+```
+
+### Rosters
+
+```python
+# Get all rosters
+rosters = client.get_rosters()
+
+# Get rosters for a team
+rosters = client.get_rosters(team_id=123)
+
+# Get specific roster
+roster = client.get_roster(roster_id=123)
+```
+
+### Ledger (Transactions)
+
+```python
+# Get transactions for a year
+transactions = client.get_ledger(year=2024)
+```
+
+### Team Stats
+
+```python
+# Get team stats
+team_stats = client.get_team_stats()
+
+# Get team stats for a season
+team_stats = client.get_team_stats(season_id=123)
+
+# Get specific team stats
+team_stat = client.get_team_stat(team_stats_id=123)
+```
+
+### Player Stats
+
+```python
+# Get player stats
+player_stats = client.get_player_stats()
+
+# Get player stats for a season and team
+player_stats = client.get_player_stats(season_id=123, team_id=456)
+
+# Get specific player stats
+player_stat = client.get_player_stat(player_stats_id=123)
+
+player_pims = client.get_player_pims(player_id=123)
+```
+
+### Standings
+
+```python
+# Get standings for a year
+standings = client.get_standings(year=2024)
+```
+
+## Error Handling
+
+The SDK provides specific error types:
+
+- `CFLAPIConnectionError`: For connection issues
+- `CFLAPITimeoutError`: For request timeouts
+- `CFLAPINotFoundError`: For 404 responses
+- `CFLAPIAuthenticationError`: For auth issues
+- `CFLAPIValidationError`: For invalid requests
+- `CFLAPIServerError`: For server errors
+
+```python
+from cfl_sdk import CFLClient, CFLAPINotFoundError
+
+client = CFLClient()
+
+try:
+    team = client.get_team(team_id=999999)
+except CFLAPINotFoundError:
+    print("Team not found")
+```
+
+## Configuration
+
+```python
+from cfl_sdk import CFLClient, setup_logger
+import logging
+
+# Configure logging
+logger = setup_logger(level=logging.DEBUG)
+
+# Configure client
+client = CFLClient(
+    base_url="https://custom.cfl.api.url",
+    timeout=30
+)
+```
+
+## Using with Context Manager
+
+```python
+with CFLClient() as client:
+    teams = client.get_teams()
+    # Client will be closed automatically
+```
