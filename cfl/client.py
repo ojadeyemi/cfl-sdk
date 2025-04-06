@@ -199,45 +199,23 @@ class CFLClient:
         limit: int = DEFAULT_LIMIT,
         page: int = DEFAULT_PAGE,
     ) -> list[dict]:
-        """Get all pages for a paginated endpoint.
+        """Get one page from a paginated endpoint.
 
         Args:
             endpoint: API endpoint
             params: Additional query parameters
             limit: Items per page
-            page: Starting page number
+            page: Page number
 
         Returns:
-            List of all items
+            List of items from the requested page
         """
-        all_items = []
-        current_page = page
-
         params = params or {}
         params["limit"] = limit
+        params["page"] = page
 
-        while True:
-            params["page"] = current_page
-            response = self._get(endpoint, params)
-
-            # Extract response data
-            data = response
-
-            # Stop if no more data
-            if not data:
-                break
-
-            all_items.extend(data)
-
-            # Try next page
-            current_page += 1
-
-            # Safety check - stop after 10 pages to prevent infinite loops
-            if current_page > page + 10:
-                logger.warning(f"Stopped pagination after 10 pages for {endpoint}")
-                break
-
-        return all_items
+        response = self._get(endpoint, params)
+        return response
 
     def get_teams(
         self,
@@ -456,15 +434,12 @@ class CFLClient:
 
     def get_player_stats(
         self,
-        season_id: int | None = None,
-        team_id: int | None = None,
         page: int = DEFAULT_PAGE,
         limit: int = DEFAULT_LIMIT,
     ) -> list[PlayerStats]:
-        """Get player statistics.
+        """Get culumnating player statistics.
 
         Args:
-            season_id: Optional season filter
             team_id: Optional team filter
             page: Page number
             limit: Items per page
@@ -473,10 +448,6 @@ class CFLClient:
             List of player statistics
         """
         params = {"page": page, "limit": limit}
-        if season_id:
-            params["season_id"] = season_id
-        if team_id:
-            params["team_id"] = team_id
 
         stats = self._paginated_get(
             PLAYER_STATS_ENDPOINT,

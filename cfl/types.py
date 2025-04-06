@@ -1,7 +1,7 @@
 """Type definitions for the CFL API SDK."""
 
 from datetime import datetime
-from typing import TypedDict
+from typing import NotRequired, TypedDict
 
 
 class Metadata(TypedDict):
@@ -10,15 +10,13 @@ class Metadata(TypedDict):
     revision: int
 
 
-class Location(TypedDict):
-    street1: str
-    street2: str | None
-    city: str
-    prov_state: str
-    prov_state_text: str | None
+class Location(TypedDict, total=False):
+    street1: str | None
+    street2: NotRequired[str | None]
+    city: str | None
+    prov_state: str | None
     country: str
-    country_text: str | None
-    postal_code: str
+    postal_code: str | None
 
 
 class Genius(TypedDict):
@@ -40,7 +38,7 @@ class Team(TypedDict):
     text_color: str
     team_order: int
     logo_svg: str
-    office_location: Location
+    office_location: Location | None
     clubname: str
     default_venue_id: int
     genius: Genius
@@ -51,9 +49,9 @@ class Venue(TypedDict):
     ID: int
     name: str
     capacity: int
-    grey_cup_capacity: int
+    grey_cup_capacity: int | None
     time_zone: str
-    office_location: Location
+    office_location: Location | None
     metadata: Metadata
 
 
@@ -65,13 +63,13 @@ class Season(TypedDict):
     semi_final_weeks: list[str]
     final_weeks: list[str]
     start_date: str
-    end_date: str
-    grey_cup_final_week: str
+    end_date: str | None
+    grey_cup_final_week: str | None
     metadata: Metadata
 
 
 # Fixture types
-class FixtureVenue(TypedDict):
+class FixtureVenue(TypedDict, total=False):
     ID: int
     name: str
     capacity: int
@@ -116,10 +114,10 @@ class RosterPlayer(TypedDict):
     lastname: str
     jersey_no: int | None
     birthdate: str
-    height_ft: int
-    height_in: int
-    weight_lbs: int
-    college_id: int
+    height_ft: int | None
+    height_in: int | None
+    weight_lbs: int | None
+    college_id: int | None
     college: str
     position: str
     return_from_injury_date: str | None
