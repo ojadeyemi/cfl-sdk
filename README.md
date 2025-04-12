@@ -1,25 +1,26 @@
-# CFL SDK
+# 🏈 CFL SDK
 
-A modern Python SDK for the CFL API using httpx.
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+
+A modern Python SDK for the CFL (Canadian Football League) API using httpx.
 
 ## Features
 
 - Full type hints using modern Python typing
 - Complete API coverage
 - Pagination handling built-in
-- Easy to use client interface
 - Error handling and logging
 
 ## Installation
 
 ```bash
-pip install cfl-sdk
+pip install  git+https://@github.com/ojadeyemi/cfl-sdk.git
 ```
 
 ## Quick Start
 
 ```python
-from cfl_sdk import CFLClient
+from cfl import CFLClient
 
 # Create client
 client = CFLClient()

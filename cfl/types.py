@@ -46,6 +46,8 @@ class Team(TypedDict):
 
 
 class Venue(TypedDict):
+    """Type hint for venue info"""
+
     ID: int
     name: str
     capacity: int
@@ -68,7 +70,6 @@ class Season(TypedDict):
     metadata: Metadata
 
 
-# Fixture types
 class FixtureVenue(TypedDict, total=False):
     ID: int
     name: str
@@ -91,6 +92,8 @@ class FixtureRelations(TypedDict):
 
 
 class Fixture(TypedDict):
+    """Fixture (Games) in  a season"""
+
     ID: int
     season_id: int
     season_game_count: int | None
@@ -106,7 +109,6 @@ class Fixture(TypedDict):
     metadata: Metadata
 
 
-# Roster types
 class RosterPlayer(TypedDict):
     ID: int
     player_id: int
@@ -132,6 +134,8 @@ class RosterPlayer(TypedDict):
 
 
 class Roster(TypedDict):
+    """Type hint for player roster for a specific team"""
+
     ID: int
     team_id: int
     name: str
@@ -139,8 +143,9 @@ class Roster(TypedDict):
     metadata: Metadata
 
 
-# Ledger types
 class LedgerTransaction(TypedDict):
+    """Type hint for ledger transactions"""
+
     transaction_id: int
     description: str
     accepted_at: str
@@ -311,5 +316,7 @@ class StandingsStats(TypedDict):
 
 
 class Standings(TypedDict):
+    """Type hint for standings"""
+
     WEST_DIVISION: list[StandingsStats]
     EAST_DIVISION: list[StandingsStats]
