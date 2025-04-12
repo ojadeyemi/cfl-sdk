@@ -1,7 +1,7 @@
 """Type definitions for the CFL API SDK."""
 
 from datetime import datetime
-from typing import NotRequired, TypedDict
+from typing import Literal, NotRequired, TypedDict
 
 
 class Metadata(TypedDict):
@@ -320,3 +320,60 @@ class Standings(TypedDict):
 
     WEST_DIVISION: list[StandingsStats]
     EAST_DIVISION: list[StandingsStats]
+
+
+class PlayerStat(TypedDict):
+    """Individual player statistic entry"""
+
+    rank: int
+    player_id: str
+    player_name: str
+    team_abbreviation: str
+    value: int | float
+
+
+StatCategory = Literal["offence", "defence", "special_teams"]
+
+
+class OffenceLeaders(TypedDict):
+    """Offensive statistics categories"""
+
+    PASSING_YARDS: list[PlayerStat]
+    PASSING_TDS: list[PlayerStat]
+    RUSHING_YARDS: list[PlayerStat]
+    RUSHING_TDS: list[PlayerStat]
+    RECEIVING_YARDS: list[PlayerStat]
+    RECEIVING_TDS: list[PlayerStat]
+    RECEPTIONS: list[PlayerStat]
+    TARGETS: list[PlayerStat]
+
+
+class DefenceLeaders(TypedDict):
+    """Defensive statistics categories"""
+
+    TOTAL_TACKLES: list[PlayerStat]
+    SACKS: list[PlayerStat]
+    INTERCEPTIONS: list[PlayerStat]
+    FORCED_FUMBLES: list[PlayerStat]
+    FUMBLE_RECOVERIES: list[PlayerStat]
+
+
+class SpecialTeamsLeaders(TypedDict):
+    """Special teams statistics categories"""
+
+    FIELD_GOALS: list[PlayerStat]
+    PUNTING_YARDS_AVG: list[PlayerStat]
+    PUNT_RETURNS_YARDS: list[PlayerStat]
+    KICKOFF_RETURNS_YARDS: list[PlayerStat]
+    FIELD_GOAL_MISS_RETURNS_YARDS: list[PlayerStat]
+    KICKOFFS_YARDS_AVG: list[PlayerStat]
+    KICKS_BLOCKED: list[PlayerStat]
+    TACKLES_SPECIAL_TEAMS: list[PlayerStat]
+
+
+class LeagueLeaders(TypedDict):
+    """Complete league leaders data structure"""
+
+    offence: OffenceLeaders
+    defence: DefenceLeaders
+    special_teams: SpecialTeamsLeaders

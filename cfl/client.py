@@ -1,6 +1,7 @@
 # type: ignore
 """CFL API Client for accessing CFL data."""
 
+import asyncio
 import json
 from urllib.parse import urljoin
 
@@ -8,13 +9,18 @@ import httpx
 from bs4 import BeautifulSoup
 
 from .constants import (
-    BASE_URL,
+    BASE_API_URL,
+    BASE_WEB_URL,
+    DEFAULT_HEADERS,
     DEFAULT_LIMIT,
     DEFAULT_PAGE,
     DEFAULT_SEASON,
     DEFAULT_TIMEOUT,
     FIXTURES_ENDPOINT,
+    LEADERBOARD_URL,
     LEDGER_ENDPOINT,
+    MAX_SEASON,
+    MIN_SEASON,
     PLAYER_PIMS_ENDPOINT,
     PLAYER_STAT_ENDPOINT,
     PLAYER_STATS_ENDPOINT,
@@ -29,6 +35,7 @@ from .constants import (
     TEAMS_ENDPOINT,
     VENUE_ENDPOINT,
     VENUES_ENDPOINT,
+    get_random_user_agent,
 )
 from .exceptions import (
     CFLAPIAuthenticationError,
@@ -38,8 +45,21 @@ from .exceptions import (
     CFLAPITimeoutError,
     CFLAPIValidationError,
 )
+from .leaderboard import parse_leaderboard_category
 from .logger import logger
-from .types import Fixture, LedgerTransaction, PlayerStats, Roster, Season, Standings, Team, TeamStats, Venue
+from .types import (
+    Fixture,
+    LeagueLeaders,
+    LedgerTransaction,
+    PlayerStats,
+    Roster,
+    Season,
+    Standings,
+    StatCategory,
+    Team,
+    TeamStats,
+    Venue,
+)
 
 
 class CFLClient:
@@ -47,7 +67,7 @@ class CFLClient:
 
     def __init__(
         self,
-        base_url: str = BASE_URL,
+        base_url: str = BASE_API_URL,
         timeout: int = DEFAULT_TIMEOUT,
     ):
         """Initialize CFL API client.
@@ -59,6 +79,7 @@ class CFLClient:
 
         self.base_url = base_url
         self.timeout = timeout
+        self.headers = {**DEFAULT_HEADERS, "User-Agent": get_random_user_agent()}
         self.client = httpx.Client(timeout=timeout)
 
     def __enter__(self):
@@ -489,22 +510,16 @@ class CFLClient:
             Dictionary containing standings data by division
         """
 
-        # Validate year range
-        if year < 2023 or year > 2025:
+        if year < MIN_SEASON or year > MAX_SEASON:
             raise ValueError("Year must be between 2023 and 2025")
 
-        url = f"https://www.cfl.ca/{year}standings"
-        headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-            "Accept": "text/html,application/xhtml+xml,application/xml",
-            "Accept-Language": "en-US,en;q=0.9",
-        }
+        url = f"{BASE_WEB_URL}/{year}standings"
 
         standings: Standings = {"WEST_DIVISION": [], "EAST_DIVISION": []}
 
         try:
-            with httpx.Client(timeout=10.0) as client:
-                response = client.get(url, headers=headers)
+            with httpx.Client(timeout=DEFAULT_TIMEOUT) as client:
+                response = client.get(url, headers=self.headers)
                 response.raise_for_status()
 
             soup = BeautifulSoup(response.text, "html.parser")
@@ -533,3 +548,42 @@ class CFLClient:
             return standings
 
         return standings
+
+    async def get_leaderboards_async(self, season: int = DEFAULT_SEASON) -> LeagueLeaders:
+        """Get league leaders for all categories asynchronously"""
+        if season < MIN_SEASON or season > MAX_SEASON:
+            raise ValueError(f"Season must be between {MIN_SEASON} and {MAX_SEASON}")
+
+        result: LeagueLeaders = {"offence": {}, "defence": {}, "special_teams": {}}
+        categories: list[StatCategory] = ["offence", "defence", "special_teams"]
+
+        async with httpx.AsyncClient(timeout=DEFAULT_TIMEOUT) as client:
+            tasks = []
+
+            for category in categories:
+                url = f"{LEADERBOARD_URL}?stat_category={category}&season={season}"
+                tasks.append(client.get(url, headers=self.headers))
+
+            responses: list[httpx.Response] = await asyncio.gather(*tasks, return_exceptions=True)
+
+            for category, response in zip(categories, responses):
+                if isinstance(response, Exception):
+                    continue
+
+                if response.status_code == 200:
+                    category_data = parse_leaderboard_category(response.text, category)
+                    result[category] = category_data
+
+        return result
+
+    def get_leaderboards(self, season: int = DEFAULT_SEASON) -> LeagueLeaders:
+        """Get league leaders for all categories"""
+        try:
+            return asyncio.run(self.get_leaderboards_async(season))
+
+        except RuntimeError as e:
+            # Fallback if there's already a running event loop
+            logger.warning(f"Warning there is already a running event loop {e}")
+            loop = asyncio.get_event_loop()
+
+            return loop.run_until_complete(self.get_leaderboards_async(season))

@@ -125,7 +125,14 @@ player_stat = client.get_player_pims(player_id=123)
 
 ```python
 # Get standings for a year
-standings = client.get_standings(year=2024)
+standings = client.get_standings(season=2024)
+```
+
+### Leaderboard
+
+```python
+# Get player leaderboard for differnet stats for a year
+leaderboard = client.get_leadeboards(season=2024)
 ```
 
 ## Error Handling
@@ -148,22 +155,6 @@ try:
     team = client.get_team(team_id=999999)
 except CFLAPINotFoundError:
     print("Team not found")
-```
-
-## Configuration
-
-```python
-from cfl_sdk import CFLClient, setup_logger
-import logging
-
-# Configure logging
-logger = setup_logger(level=logging.DEBUG)
-
-# Configure client
-client = CFLClient(
-    base_url="https://custom.cfl.api.url",
-    timeout=30
-)
 ```
 
 ## Using with Context Manager
