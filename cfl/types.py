@@ -330,6 +330,7 @@ class PlayerStat(TypedDict):
     player_name: str
     team_abbreviation: str
     value: int | float
+    photo_url: str
 
 
 StatCategory = Literal["offence", "defence", "special_teams"]

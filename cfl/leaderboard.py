@@ -121,6 +121,7 @@ def parse_player_table(table_soup, max_players: int = MAX_PLAYERS) -> list[Playe
             "team_abbreviation": team_abbv_text,
             "value": _parse_stat_value(value_text),
             "player_id": player_id,
+            "photo_url": f"https://static.cfl.ca/wp-content/uploads/{player_id}.png",
         }
 
         players.append(player_stat)
