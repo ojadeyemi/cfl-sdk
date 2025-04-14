@@ -268,7 +268,9 @@ class CFLClient:
 
         return self._get(endpoint)
 
-    def get_venues(self, page: int = DEFAULT_PAGE, limit: int = DEFAULT_LIMIT) -> list[Venue]:
+    def get_venues(
+        self,
+    ) -> list[Venue]:
         """Get all CFL venues.
 
         Args:
@@ -280,7 +282,6 @@ class CFLClient:
         """
         venues = self._paginated_get(
             VENUES_ENDPOINT,
-            params={"page": page, "limit": limit},
         )
 
         return venues
@@ -413,8 +414,6 @@ class CFLClient:
     def get_team_stats(
         self,
         season_id: int | None = None,
-        page: int = DEFAULT_PAGE,
-        limit: int = DEFAULT_LIMIT,
     ) -> list[TeamStats]:
         """Get team statistics.
 
@@ -426,7 +425,7 @@ class CFLClient:
         Returns:
             List of team statistics
         """
-        params = {"page": page, "limit": limit}
+        params = {}
         if season_id:
             params["season_id"] = season_id
 

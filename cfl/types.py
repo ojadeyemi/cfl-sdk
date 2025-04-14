@@ -1,7 +1,7 @@
 """Type definitions for the CFL API SDK."""
 
 from datetime import datetime
-from typing import Literal, NotRequired, TypedDict
+from typing import Literal, NotRequired, Required, TypedDict
 
 
 class Metadata(TypedDict):
@@ -91,7 +91,7 @@ class FixtureRelations(TypedDict):
     venue: FixtureVenue
 
 
-class Fixture(TypedDict):
+class Fixture(TypedDict, total=False):
     """Fixture (Games) in  a season"""
 
     ID: int
@@ -165,74 +165,224 @@ class LedgerTransaction(TypedDict):
 
 
 # Stats types
-class SeasonTeamStats(TypedDict):
-    season_id: int
-    season: int
-    team_id: int
-    team_abbreviation: str
-    opponent_team_id: int
-    opponent_team_abbreviation: str
-    drives: int
-    firstDowns: int
-    passesAttempted: int
-    passesCompleted: int
-    passesYards: int
-    passesTouchdowns: int
-    rushes: int
-    rushesYards: int
-    rushesTouchdowns: int
-    penalties: int
-    penaltiesYards: int
-    turnovers: int
-    fumblesLost: int
-    interceptions: int
-    thirdDownConversions: int
-    thirdDownAttempts: int
-    fourthDownConversions: int
-    fourthDownAttempts: int
-    redZoneAppearances: int
-    redZoneTouchdowns: int
-    sacks: int
-    sacksYards: int
-    pointsScored: int
-    timeOfPossession: str
-
-
-class FixtureTeamStats(TypedDict):
+class BaseTeamStats(TypedDict, total=False):
     driveGoalToGoAttempted: int
-    driveGoalToGoSuccessful: int
+    driveInsideTwentyAttempted: int
+    driveInsideTwentySucceeded: int
+    driveInsideTwentySucceededPercentage: float
+    drives: int
+    extraPointsAttempted: int
+    extraPointsSucceeded: int
+    fieldGoalsAttempted: int
+    fieldGoalsAverageYards: float
+    fieldGoalsMissed: int
+    fieldGoalsMissedReturns: int
+    fieldGoalsMissedReturnsYards: int
+    fieldGoalsMissedReturnsYardsAverage: float
+    fieldGoalsMissedReturnsYardsLongest: int
+    fieldGoalsSucceeded: int
+    fieldGoalsSucceededPercentage: float
+    fieldGoalsSucceededYardsLongest: int
+    fieldGoalsYards: int
     firstDowns: int
-    firstDownsByRush: int
+    firstDownsAttempted: int
     firstDownsByPass: int
-    passesAttempted: int
-    passesCompleted: int
-    passesYards: int
-    passesTouchdowns: int
-    rushes: int
-    rushesYards: int
-    rushesTouchdowns: int
-    penalties: int
-    penaltiesYards: int
-    turnovers: int
-    fumblesLost: int
-    interceptions: int
-    thirdDownConversions: int
-    thirdDownAttempts: int
-    fourthDownConversions: int
+    firstDownsByPenalties: int
+    firstDownsByRush: int
+    firstDownsConversions: int
+    firstDownsConversionsPercentage: float
+    firstDownsPenalties: int
+    firstDownsYards: int
+    firstDownsYardsAverage: float
     fourthDownAttempts: int
+    fourthDownConversions: int
+    fumbles: int
+    fumblesForced: int
+    fumblesLost: int
+    fumblesOutOfBounds: int
+    fumblesRecoveries: int
+    fumblesRecoveriesFromOpponents: int
+    fumblesRecoveriesOwn: int
+    fumblesRecoveriesOwnYards: int
+    fumblesReturnsYards: int
+    fumblesReturnsYardsLongest: int
+    interceptions: int
+    interceptionsReturns: int
+    interceptionsReturnsYards: int
+    interceptionsReturnsYardsLongest: int
+    kickoffs: int
+    kickoffsInsideEndZone: int
+    kickoffsInsideTwenty: int
+    kickoffsKickerReturnsYards: int
+    kickoffsOutOfBounds: int
+    kickoffsReturns: int
+    kickoffsReturnsYards: int
+    kickoffsReturnsYardsAverage: float
+    kickoffsReturnsYardsLongest: int
+    kickoffsYards: int
+    kickoffsYardsAverage: float
+    kickoffsYardsLongest: int
+    kneels: int
+    kneelsYards: int
+    largestLead: int
+    losses: int
+    lossesYards: int
+    offenseYards: int
+    passesAttempted: int
+    passesAttemptedYardsAverage: float
+    passesCompleted: int
+    passesIntercepted: int
+    passesRating: float
+    passesSacked: int
+    passesSackedFirstDown: int
+    passesSackedLostYards: int
+    passesSackedSecondDown: int
+    passesSucceededPercentage: float
+    passesSucceededThirtyPlusYards: int
+    passesSucceededYardsAverage: float
+    passesSucceededYardsLongest: int
+    passesTouchdowns: int
+    passesYards: int
+    penalties: int
+    penaltiesDeclined: int
+    penaltiesYards: int
+    playYardsAverage: float
+    plays: int
+    pointsAllowed: int
+    pointsAllowedFirstQuarter: int
+    pointsAllowedFourthQuarter: int
+    pointsAllowedOvertime: int
+    pointsAllowedSecondQuarter: int
+    pointsAllowedThirdQuarter: int
+    pointsScored: int
+    pointsScoredFirstQuarter: int
+    pointsScoredFourthQuarter: int
+    pointsScoredSecondQuarter: int
+    pointsScoredThirdQuarter: int
+    puntingInsideTen: int
+    puntingInsideTwenty: int
+    puntingKickerReturnsYards: int
+    puntingReturnsYards: int
+    puntingReturnsYardsAverage: float
+    puntingReturnsYardsLongest: int
+    puntingYards: int
+    puntingYardsGrossAverage: float
+    puntingYardsLongest: int
+    puntingYardsNet: int
+    puntingYardsNetAverage: float
+    punts: int
+    puntsReturns: int
+    receptions: int
+    receptionsSecondDownForFirstDown: int
+    receptionsThirtyPlusYards: int
+    receptionsYards: int
+    receptionsYardsAverage: float
+    receptionsYardsLongest: int
     redZoneAppearances: int
     redZoneTouchdowns: int
+    returnsYards: int
+    rushes: int
+    rushesAttemptedInsideTwenty: int
+    rushesSucceededInsideTwenty: int
+    rushesTenPlusYards: int
+    rushesTouchdowns: int
+    rushesTwentyPlusYards: int
+    rushesYards: int
+    rushingTacklesForLoss: int
+    rushingTacklesForLossYards: int
+    rushingYardsAverage: float
+    rushingYardsLongest: int
     sacks: int
+    sacksForLossYards: int
     sacksYards: int
-    pointsScored: int
+    secondDownsAttempted: int
+    secondDownsConversions: int
+    secondDownsConversionsPercentage: float
+    secondDownsFourToSixYardsAttempted: int
+    secondDownsFourToSixYardsConversions: int
+    secondDownsFourToSixYardsConversionsPercentage: float
+    secondDownsOneToThreeYardsAttempted: int
+    secondDownsOneToThreeYardsConversions: int
+    secondDownsOneToThreeYardsConversionsPercentage: float
+    secondDownsSevenPlusYardsAttempted: int
+    secondDownsSevenPlusYardsConversions: int
+    secondDownsSevenPlusYardsConversionsPercentage: float
+    secondDownsYards: int
+    secondDownsYardsAverage: float
+    singles: int
+    singlesFieldGoals: int
+    singlesKickoffs: int
+    singlesPunts: int
+    tackles: int
+    tacklesForLoss: int
+    tacklesForLossYards: int
+    tacklesSolo: int
+    tacklesSpecialTeam: int
+    thirdDownAttempts: int
+    thirdDownConversions: int
+    thirdDownsYards: int
+    thirdDownsYardsAverage: float
     timeOfPossession: str
+    timeOfPossessionSeconds: int
+    touchdowns: int
+    touchdownsInterceptionsReturns: int
+    touchdownsInterceptionsReturnsYardsLongest: int
+    touchdownsKickoffsReturns: int
+    touchdownsKickoffsReturnsYardsLongest: int
+    touchdownsPassesYardsLongest: int
+    touchdownsPuntingReturns: int
+    touchdownsPuntingReturnsYardsLongest: int
+    touchdownsReceptions: int
+    touchdownsReceptionsYardsLongest: int
+    touchdownsReturns: int
+    touchdownsRushingYardsLongest: int
+    turnovers: int
+    turnoversOnDowns: int
+    twoPointPassAttempted: int
+    twoPointPassSucceeded: int
+    twoPointReceptionAttempted: int
+    twoPointReceptionSucceeded: int
+    twoPointRushAttempted: int
+    twoPointRushSucceeded: int
 
 
-class FixtureTeamStatsWrapper(TypedDict):
-    fixture_id: int
+class SeasonTeamStats(BaseTeamStats, total=False):
+    season: Required[int]
+    season_id: Required[int]
+    team_id: Required[int]
+    team_abbreviation: str
+    defensiveExtraPointsBlocked: int
+    driveGoalToGoSucceeded: int
+    opponent_team_abbreviation: str
+    opponent_team_id: int
+    pointsScoredOvertime: int
+    thirdDownsConversionsPercentage: float
+    touchdownsRushing: int
+
+
+class FixtureTeamStats(BaseTeamStats, total=False):
+    driveGoalToGoSuccessful: int
+    extraPointsBlocked: int
+    fieldGoalsBlocked: int
+    passesSackedThirdDown: int
+    puntsBlocked: int
+    safeties: int
+    touchdownsFieldGoalsReturns: int
+    touchdownsFumblesOwnRecovery: int
+    touchdownsFumblesReturn: int
+    touchdownsKickoffsOwnRecovery: int
+    touchdownsPuntingOwnRecovery: int
+    twoPointConversionsDefense: int
+    twoPointDefensiveConversionsAttempted: int
+    twoPointDefensiveConversionsSucceeded: int
+    yardsAfterCatch: int
+
+
+class FixtureTeamStatsWrapper(TypedDict, total=False):
+    fixture_id: Required[int]
     genius_id: int
     season: int
-    season_id: int
+    season_id: Required[int]
     week: int
     start_at: str
     stats: FixtureTeamStats
@@ -240,42 +390,108 @@ class FixtureTeamStatsWrapper(TypedDict):
 
 class TeamStats(TypedDict):
     ID: int
-    seasons: list[SeasonTeamStats]
-    fixtures: list[FixtureTeamStatsWrapper]
-
-
-# Player stats types
-class SeasonPlayerStats(TypedDict):
-    season_id: int
-    season: int
-    hasParticipated: int
+    abbreviation: str
+    last_game_id: int | None
+    name: str
+    region_label: str
     team_id: int
-    team_abbreviation: str
-    opponent_team_id: int
-    opponent_team_abbreviation: str
+    seasons: list[SeasonTeamStats]
+    fixtures: NotRequired[list[FixtureTeamStatsWrapper]]
+    metadata: Metadata
+
+
+class BasePlayerStats(TypedDict, total=False):
+    fieldGoalsMissedReturns: int
+    fieldGoalsMissedReturnsYards: int
+    fumbles: int
+    fumblesForced: int
+    fumblesRecoveries: int
+    fumblesRecoveriesOwn: int
+    kickoffs: int
+    kickoffsInsideEndZone: int
+    kickoffsInsideTwenty: int
+    kickoffsKickerReturnsYards: int
+    kickoffsOutOfBounds: int
+    kickoffsYards: int
+    kickoffsYardsAverage: int
+    kickoffsYardsLongest: int
+    kickoffsReturns: int
+    kickoffsReturnsYards: int
+    kickoffsReturnsYardsLongest: int
+    passesAttempted: int
+    passesIntercepted: int
+    passesDefended: int
+    passesRating: float
+    passesSucceeded: int
+    passesSucceededPercentage: float | None
+    passesSucceededYards: int
+    passesSucceededYardsLongest: int
+    passesTargetedAt: int
     penaltiesChargedDefense: int
+    penaltiesChargedOffense: int
+    pointsScored: int
+    pointsScoredFirstQuarter: int
+    pointsScoredFourthQuarter: int
+    pointsScoredThirdQuarter: int
+    puntingInsideTen: int
+    puntingInsideTwenty: int
+    puntingKickerReturnsYards: int
+    puntingYards: int
+    puntingYardsGrossAverage: float | None
+    puntingYardsNet: int | float | None
+    puntingReturnsYards: int
+    puntingReturnsYardsLongest: int
+    punts: int
+    puntsReturns: int
+    receptions: int
+    receptionsYards: int
+    receptionsYardsLongest: int
+    rushes: int
+    rushingYards: int
+    rushingYardsLongest: int
+    sacks: int
+    singles: int
+    singlesKickoffs: int
+    singlesPunts: int
     tackles: int
-    tacklesSpecialTeam: int
-    wasStarter: int
+    tacklesForLoss: int
     tacklesSolo: int
+    tacklesSpecialTeam: int
+    touchdownsPasses: int
+    touchdownsReceptions: int
+    touchdownsReceptionsYardsLongest: int
+    touchdownsRushing: int
+    touchdownsRushingYardsLongest: int
+    yardsAfterCatch: int
 
 
-class FixturePlayerStats(TypedDict):
+class SeasonPlayerStats(BasePlayerStats):
+    hasParticipated: int
+    opponent_team_abbreviation: str
+    opponent_team_id: int
+    season: int
+    season_id: int
+    team_abbreviation: str
+    team_id: int
+    wasStarter: int
+
+
+class FixturePlayerStats(BasePlayerStats):
     hasParticipated: bool
     wasStarter: bool
 
 
-class FixturePlayerStatsWrapper(TypedDict):
-    fixture_id: int
+class FixturePlayerStatsWrapper(TypedDict, total=False):
+    fixture_id: Required[int]
     genius_id: int
     season: int
-    season_id: int
+    season_id: Required[int]
     week: int
     start_at: str
     stats: FixturePlayerStats
-    team_id: int
+    team_id: Required[int]
     team_abbreviation: str
-    opponent_team_id: int
+    opponent_team_id: Required[int]
     opponent_team_abbreviation: str
 
 
@@ -284,13 +500,13 @@ class PlayerStats(TypedDict, total=False):
     seasons: list[SeasonPlayerStats]
     fixtures: list[FixturePlayerStatsWrapper]
     last_game_id: int
-    player_id: int
+    player_id: Required[int]
     rosterplayer_id: int
     firstname: str
     lastname: str
-    team_id: int
-    team: str
-    position: str
+    team_id: int | None
+    team: str | None
+    position: str | None
     metadata: Metadata
 
 
@@ -322,7 +538,7 @@ class Standings(TypedDict):
     EAST_DIVISION: list[StandingsStats]
 
 
-class PlayerStat(TypedDict):
+class _PlayerStat(TypedDict):
     """Individual player statistic entry"""
 
     rank: int
@@ -339,37 +555,37 @@ StatCategory = Literal["offence", "defence", "special_teams"]
 class OffenceLeaders(TypedDict):
     """Offensive statistics categories"""
 
-    PASSING_YARDS: list[PlayerStat]
-    PASSING_TDS: list[PlayerStat]
-    RUSHING_YARDS: list[PlayerStat]
-    RUSHING_TDS: list[PlayerStat]
-    RECEIVING_YARDS: list[PlayerStat]
-    RECEIVING_TDS: list[PlayerStat]
-    RECEPTIONS: list[PlayerStat]
-    TARGETS: list[PlayerStat]
+    PASSING_YARDS: list[_PlayerStat]
+    PASSING_TDS: list[_PlayerStat]
+    RUSHING_YARDS: list[_PlayerStat]
+    RUSHING_TDS: list[_PlayerStat]
+    RECEIVING_YARDS: list[_PlayerStat]
+    RECEIVING_TDS: list[_PlayerStat]
+    RECEPTIONS: list[_PlayerStat]
+    TARGETS: list[_PlayerStat]
 
 
 class DefenceLeaders(TypedDict):
     """Defensive statistics categories"""
 
-    TOTAL_TACKLES: list[PlayerStat]
-    SACKS: list[PlayerStat]
-    INTERCEPTIONS: list[PlayerStat]
-    FORCED_FUMBLES: list[PlayerStat]
-    FUMBLE_RECOVERIES: list[PlayerStat]
+    TOTAL_TACKLES: list[_PlayerStat]
+    SACKS: list[_PlayerStat]
+    INTERCEPTIONS: list[_PlayerStat]
+    FORCED_FUMBLES: list[_PlayerStat]
+    FUMBLE_RECOVERIES: list[_PlayerStat]
 
 
 class SpecialTeamsLeaders(TypedDict):
     """Special teams statistics categories"""
 
-    FIELD_GOALS: list[PlayerStat]
-    PUNTING_YARDS_AVG: list[PlayerStat]
-    PUNT_RETURNS_YARDS: list[PlayerStat]
-    KICKOFF_RETURNS_YARDS: list[PlayerStat]
-    FIELD_GOAL_MISS_RETURNS_YARDS: list[PlayerStat]
-    KICKOFFS_YARDS_AVG: list[PlayerStat]
-    KICKS_BLOCKED: list[PlayerStat]
-    TACKLES_SPECIAL_TEAMS: list[PlayerStat]
+    FIELD_GOALS: list[_PlayerStat]
+    PUNTING_YARDS_AVG: list[_PlayerStat]
+    PUNT_RETURNS_YARDS: list[_PlayerStat]
+    KICKOFF_RETURNS_YARDS: list[_PlayerStat]
+    FIELD_GOAL_MISS_RETURNS_YARDS: list[_PlayerStat]
+    KICKOFFS_YARDS_AVG: list[_PlayerStat]
+    KICKS_BLOCKED: list[_PlayerStat]
+    TACKLES_SPECIAL_TEAMS: list[_PlayerStat]
 
 
 class LeagueLeaders(TypedDict):
