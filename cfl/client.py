@@ -1,4 +1,5 @@
 # type: ignore
+
 """CFL API Client for accessing CFL data."""
 
 import asyncio
@@ -494,10 +495,15 @@ class CFLClient:
             player_id: Player ID
 
         Returns:
-            Player statistics
+            Player statistics with photo URL
         """
         endpoint = PLAYER_PIMS_ENDPOINT.format(player_id=player_id)
-        return self._get(endpoint)
+        data = self._get(endpoint)
+
+        if data:
+            data["photo_url"] = f"https://static.cfl.ca/wp-content/uploads/{player_id}.png"
+
+        return data
 
     def get_standings(self, year: int = DEFAULT_SEASON) -> Standings:
         """Get Standings data of a season
