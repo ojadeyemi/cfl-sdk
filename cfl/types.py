@@ -58,6 +58,8 @@ class Venue(TypedDict):
 
 
 class Season(TypedDict):
+    """Important dates for specific season"""
+
     ID: int
     year: int
     preseason_weeks: list[str]
@@ -389,6 +391,8 @@ class FixtureTeamStatsWrapper(TypedDict, total=False):
 
 
 class TeamStats(TypedDict):
+    """Team statistics"""
+
     ID: int
     abbreviation: str
     last_game_id: int | None
@@ -496,6 +500,8 @@ class FixturePlayerStatsWrapper(TypedDict, total=False):
 
 
 class PlayerStats(TypedDict, total=False):
+    """A player statistics"""
+
     ID: int
     seasons: list[SeasonPlayerStats]
     fixtures: list[FixturePlayerStatsWrapper]

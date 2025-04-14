@@ -3,7 +3,7 @@
 from bs4 import BeautifulSoup, Tag
 
 from .constants import MAX_PLAYERS
-from .types import PlayerStat
+from .types import _PlayerStat
 
 STAT_CATEGORY_MAPPING = {
     "offence": {
@@ -83,7 +83,7 @@ def _parse_stat_value(value_text: str) -> int | float:
         return 0.0 if "." in value_text else 0
 
 
-def parse_player_table(table_soup, max_players: int = MAX_PLAYERS) -> list[PlayerStat]:
+def parse_player_table(table_soup, max_players: int = MAX_PLAYERS) -> list[_PlayerStat]:
     players = []
     rows = table_soup.find_all("tr", class_="player-tooltip-wrapper")
 
@@ -115,7 +115,7 @@ def parse_player_table(table_soup, max_players: int = MAX_PLAYERS) -> list[Playe
         if leaders_stat:
             value_text = leaders_stat.text.strip()
 
-        player_stat: PlayerStat = {
+        player_stat: _PlayerStat = {
             "rank": rank,
             "player_name": player_name,
             "team_abbreviation": team_abbv_text,
@@ -129,7 +129,7 @@ def parse_player_table(table_soup, max_players: int = MAX_PLAYERS) -> list[Playe
     return players
 
 
-def parse_leaderboard_category(html_content: str, category: str) -> dict[str, list[PlayerStat]]:
+def parse_leaderboard_category(html_content: str, category: str) -> dict[str, list[_PlayerStat]]:
     soup = BeautifulSoup(html_content, "html.parser")
     tables: list[Tag] = soup.find_all("table")  # type: ignore
 

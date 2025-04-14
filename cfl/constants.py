@@ -5,7 +5,6 @@ import random
 BASE_API_URL = "https://echo.pims.cfl.ca/api"
 BASE_WEB_URL = "https://www.cfl.ca"
 
-
 # Endpoints
 TEAMS_ENDPOINT = "/teams"
 TEAM_ENDPOINT = "/teams/{team_id}"
@@ -25,13 +24,11 @@ PLAYER_STAT_ENDPOINT = "/stats/players/{player_stats_id}"
 PLAYER_PIMS_ENDPOINT = "/stats/players/pims_player/{player_id}"
 LEADERBOARD_URL = f"{BASE_WEB_URL}/league-leaders"
 
-
 # Default parameters
 DEFAULT_SEASON = 2024
-DEFAULT_LIMIT = 100
+DEFAULT_LIMIT = 50
 DEFAULT_PAGE = 1
 DEFAULT_TIMEOUT = 10
-
 
 MAX_PLAYERS = 5
 MIN_SEASON = 2023
@@ -42,7 +39,6 @@ DEFAULT_HEADERS = {
     "Referer": "https://www.cfl.ca/",
     "Accept": "application/json, text/javascript, */*; q=0.01",
 }
-
 
 USER_AGENTS = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36",
