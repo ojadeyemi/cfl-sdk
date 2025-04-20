@@ -166,10 +166,9 @@ class LedgerTransaction(TypedDict):
     previous_state: str
 
 
-# Stats types
-
-
 class BaseTeamStats(TypedDict, total=False):
+    defensiveExtraPointsBlocked: int | None
+    driveGoalToGoSucceeded: int | None
     driveGoalToGoAttempted: int | None
     driveInsideTwentyAttempted: int | None
     driveInsideTwentySucceeded: int | None
@@ -241,6 +240,7 @@ class BaseTeamStats(TypedDict, total=False):
     passesSackedFirstDown: int | None
     passesSackedLostYards: int | None
     passesSackedSecondDown: int | None
+    passesSackedThirdDown: int | None
     passesSucceededPercentage: float | None
     passesSucceededThirtyPlusYards: int | None
     passesSucceededYardsAverage: float | None
@@ -263,6 +263,7 @@ class BaseTeamStats(TypedDict, total=False):
     pointsScoredFourthQuarter: int | None
     pointsScoredSecondQuarter: int | None
     pointsScoredThirdQuarter: int | None
+    pointsScoredOvertime: int | None
     puntingInsideTen: int | None
     puntingInsideTwenty: int | None
     puntingKickerReturnsYards: int | None
@@ -275,6 +276,7 @@ class BaseTeamStats(TypedDict, total=False):
     puntingYardsNet: int | None
     puntingYardsNetAverage: float | None
     punts: int | None
+    puntsBlocked: int | None
     puntsReturns: int | None
     receptions: int | None
     receptionsSecondDownForFirstDown: int | None
@@ -296,6 +298,7 @@ class BaseTeamStats(TypedDict, total=False):
     rushingTacklesForLossYards: int | None
     rushingYardsAverage: float | None
     rushingYardsLongest: int | None
+    safeties: int | None
     sacks: int | None
     sacksForLossYards: int | None
     sacksYards: int | None
@@ -324,30 +327,41 @@ class BaseTeamStats(TypedDict, total=False):
     tacklesSpecialTeam: int | None
     thirdDownAttempts: int | None
     thirdDownConversions: int | None
+    thirdDownsConversionsPercentage: float | None
     thirdDownsYards: int | None
     thirdDownsYardsAverage: float | None
     timeOfPossession: str | None
     timeOfPossessionSeconds: int | None
     touchdowns: int | None
+    touchdownsFieldGoalsReturns: int | None
+    touchdownsFumblesOwnRecovery: int | None
+    touchdownsFumblesReturn: int | None
     touchdownsInterceptionsReturns: int | None
     touchdownsInterceptionsReturnsYardsLongest: int | None
+    touchdownsKickoffsOwnRecovery: int | None
     touchdownsKickoffsReturns: int | None
     touchdownsKickoffsReturnsYardsLongest: int | None
     touchdownsPassesYardsLongest: int | None
+    touchdownsPuntingOwnRecovery: int | None
     touchdownsPuntingReturns: int | None
     touchdownsPuntingReturnsYardsLongest: int | None
     touchdownsReceptions: int | None
     touchdownsReceptionsYardsLongest: int | None
     touchdownsReturns: int | None
+    touchdownsRushing: int | None
     touchdownsRushingYardsLongest: int | None
     turnovers: int | None
     turnoversOnDowns: int | None
+    twoPointConversionsDefense: int | None
+    twoPointDefensiveConversionsAttempted: int | None
+    twoPointDefensiveConversionsSucceeded: int | None
     twoPointPassAttempted: int | None
     twoPointPassSucceeded: int | None
     twoPointReceptionAttempted: int | None
     twoPointReceptionSucceeded: int | None
     twoPointRushAttempted: int | None
     twoPointRushSucceeded: int | None
+    yardsAfterCatch: int
 
 
 class SeasonTeamStats(BaseTeamStats, total=False):
@@ -355,31 +369,14 @@ class SeasonTeamStats(BaseTeamStats, total=False):
     season_id: Required[int]
     team_id: Required[int]
     team_abbreviation: str
-    defensiveExtraPointsBlocked: int
-    driveGoalToGoSucceeded: int
     opponent_team_abbreviation: str
     opponent_team_id: int
-    pointsScoredOvertime: int
-    thirdDownsConversionsPercentage: float
-    touchdownsRushing: int
 
 
 class FixtureTeamStats(BaseTeamStats, total=False):
     driveGoalToGoSuccessful: int
     extraPointsBlocked: int
     fieldGoalsBlocked: int
-    passesSackedThirdDown: int
-    puntsBlocked: int
-    safeties: int
-    touchdownsFieldGoalsReturns: int
-    touchdownsFumblesOwnRecovery: int
-    touchdownsFumblesReturn: int
-    touchdownsKickoffsOwnRecovery: int
-    touchdownsPuntingOwnRecovery: int
-    twoPointConversionsDefense: int
-    twoPointDefensiveConversionsAttempted: int
-    twoPointDefensiveConversionsSucceeded: int
-    yardsAfterCatch: int
 
 
 class FixtureTeamStatsWrapper(TypedDict, total=False):

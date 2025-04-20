@@ -1,5 +1,5 @@
 # type: ignore
-
+# TODO cast data to right type before returning
 """CFL API Client for accessing CFL data."""
 
 import asyncio
@@ -477,7 +477,7 @@ class CFLClient:
         return stats
 
     def get_player_stat(self, player_stats_id: int) -> PlayerStats:
-        """Get player stats by ID.
+        """Get player stats by Player stats ID.
 
         Args:
             player_stats_id: Player stats ID
@@ -489,7 +489,7 @@ class CFLClient:
         return self._get(endpoint)
 
     def get_player_pims(self, player_id: int) -> PlayerStats:
-        """Get player stats by PIMS ID.
+        """Get player stats by PIMS ID (player id).
 
         Args:
             player_id: Player ID
