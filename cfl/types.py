@@ -19,7 +19,7 @@ class Location(TypedDict, total=False):
     postal_code: str | None
 
 
-class Genius(TypedDict):
+class Genius(TypedDict, total=False):
     id: int
     error: str | None
     messages: list
@@ -100,15 +100,21 @@ class Fixture(TypedDict, total=False):
     season_id: int
     season_game_count: int | None
     home_team_id: int | None
+    home_team_score: int | None
     home_game_count: int | None
     away_team_id: int | None
+    away_team_score: int | None
     week: int
     game_type_id: int
+    game_clock: str | None
+    start_at: str
     start_at_local: str
     venue_id: int
     start_at: str
+    broadcasting_options: list[str] | None
     relations: FixtureRelations
     metadata: Metadata
+    genius: Genius
 
 
 class RosterPlayer(TypedDict):
