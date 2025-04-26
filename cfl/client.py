@@ -56,7 +56,6 @@ from .types import (
     Roster,
     Season,
     Standings,
-    StatCategory,
     Team,
     TeamStats,
     Venue,
@@ -564,8 +563,8 @@ class CFLClient:
         if season < MIN_SEASON or season > MAX_SEASON:
             raise ValueError(f"Season must be between {MIN_SEASON} and {MAX_SEASON}")
 
-        result: LeagueLeaders = {"offence": {}, "defence": {}, "special_teams": {}}
-        categories: list[StatCategory] = ["offence", "defence", "special_teams"]
+        result: LeagueLeaders = {"OFFENCE": {}, "DEFENCE": {}, "SPECIAL_TEAMS": {}}
+        categories: list = ["OFFENCE", "DEFENCE", "SPECIAL_TEAMS"]
 
         async with httpx.AsyncClient(timeout=DEFAULT_TIMEOUT) as client:
             tasks = []
