@@ -567,13 +567,13 @@ class CFLClient:
             raise ValueError(f"Season must be between {MIN_SEASON} and {MAX_SEASON}")
 
         result: LeagueLeaders = {OFFENCE: {}, DEFENCE: {}, SPECIAL_TEAMS: {}}
-        categories: list[str] = [OFFENCE, DEFENCE, SPECIAL_TEAMS]
+        categories: list[str] = ["offence", "defence", "special_teams"]
 
         async with httpx.AsyncClient(timeout=DEFAULT_TIMEOUT) as client:
             tasks = []
 
             for category in categories:
-                url = f"{LEADERBOARD_URL}?stat_category={category.lower()}&season={season}"
+                url = f"{LEADERBOARD_URL}?stat_category={category}&season={season}"
                 tasks.append(client.get(url, headers=self.headers))
 
             responses: list[httpx.Response] = await asyncio.gather(*tasks, return_exceptions=True)
@@ -584,7 +584,7 @@ class CFLClient:
 
                 if response.status_code == 200:
                     category_data = parse_leaderboard_category(response.text, category)
-                    result[category] = category_data
+                    result[category.upper()] = category_data
 
         return result
 
