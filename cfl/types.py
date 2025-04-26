@@ -545,8 +545,8 @@ class StandingsStats(TypedDict):
 class Standings(TypedDict):
     """Type hint for standings"""
 
-    WEST_DIVISION: list[StandingsStats]
-    EAST_DIVISION: list[StandingsStats]
+    WEST: list[StandingsStats]
+    EAST: list[StandingsStats]
 
 
 class _PlayerStat(TypedDict):
