@@ -17,11 +17,13 @@ from .constants import (
     DEFAULT_PAGE,
     DEFAULT_SEASON,
     DEFAULT_TIMEOUT,
+    DEFENCE,
     FIXTURES_ENDPOINT,
     LEADERBOARD_URL,
     LEDGER_ENDPOINT,
     MAX_SEASON,
     MIN_SEASON,
+    OFFENCE,
     PLAYER_PIMS_ENDPOINT,
     PLAYER_STAT_ENDPOINT,
     PLAYER_STATS_ENDPOINT,
@@ -30,6 +32,7 @@ from .constants import (
     SEASON_ENDPOINT,
     SEASON_FIXTURES_ENDPOINT,
     SEASONS_ENDPOINT,
+    SPECIAL_TEAMS,
     TEAM_ENDPOINT,
     TEAM_STAT_ENDPOINT,
     TEAM_STATS_ENDPOINT,
@@ -563,14 +566,14 @@ class CFLClient:
         if season < MIN_SEASON or season > MAX_SEASON:
             raise ValueError(f"Season must be between {MIN_SEASON} and {MAX_SEASON}")
 
-        result: LeagueLeaders = {"OFFENCE": {}, "DEFENCE": {}, "SPECIAL_TEAMS": {}}
-        categories: list = ["OFFENCE", "DEFENCE", "SPECIAL_TEAMS"]
+        result: LeagueLeaders = {OFFENCE: {}, DEFENCE: {}, SPECIAL_TEAMS: {}}
+        categories: list[str] = [OFFENCE, DEFENCE, SPECIAL_TEAMS]
 
         async with httpx.AsyncClient(timeout=DEFAULT_TIMEOUT) as client:
             tasks = []
 
             for category in categories:
-                url = f"{LEADERBOARD_URL}?stat_category={category}&season={season}"
+                url = f"{LEADERBOARD_URL}?stat_category={category.lower()}&season={season}"
                 tasks.append(client.get(url, headers=self.headers))
 
             responses: list[httpx.Response] = await asyncio.gather(*tasks, return_exceptions=True)

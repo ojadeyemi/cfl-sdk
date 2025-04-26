@@ -49,3 +49,7 @@ USER_AGENTS = [
 
 def get_random_user_agent() -> str:
     return random.choice(USER_AGENTS)
+
+OFFENCE = "OFFENCE"
+DEFENCE = "DEFENCE"
+SPECIAL_TEAMS = "SPECIAL_TEAMS"
