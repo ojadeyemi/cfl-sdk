@@ -520,7 +520,7 @@ class CFLClient:
 
         url = f"{BASE_WEB_URL}/{year}standings"
 
-        standings: Standings = {"WEST_DIVISION": [], "EAST_DIVISION": []}
+        standings: Standings = {"WEST": [], "EAST": []}
 
         try:
             with httpx.Client(timeout=DEFAULT_TIMEOUT) as client:
@@ -537,7 +537,7 @@ class CFLClient:
                 if i > 1:  # Only process first two tables
                     break
 
-                division = "WEST_DIVISION" if i == 0 else "EAST_DIVISION"
+                division = "WEST" if i == 0 else "EAST"
                 rows = table.find_all("tr")
 
                 if not rows:

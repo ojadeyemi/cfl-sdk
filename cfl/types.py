@@ -96,21 +96,20 @@ class FixtureRelations(TypedDict):
 class Fixture(TypedDict, total=False):
     """Fixture (Games) in  a season"""
 
-    ID: int
-    season_id: int
+    ID: Required[int]
+    season_id: Required[int]
     season_game_count: int | None
     home_team_id: int | None
     home_team_score: int | None
     home_game_count: int | None
     away_team_id: int | None
     away_team_score: int | None
-    week: int
+    week: Required[int]
     game_type_id: int
     game_clock: str | None
-    start_at: str
-    start_at_local: str
-    venue_id: int
-    start_at: str
+    start_at: Required[str|None]
+    start_at_local: Required[str|None]
+    venue_id: int|None
     broadcasting_options: list[str] | None
     relations: FixtureRelations
     metadata: Metadata
