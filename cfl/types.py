@@ -1,7 +1,7 @@
 """Type definitions for the CFL API SDK."""
 
 from datetime import datetime
-from typing import Literal, NotRequired, Required, TypedDict
+from typing import NotRequired, Required, TypedDict
 
 
 class Metadata(TypedDict):
@@ -107,9 +107,10 @@ class Fixture(TypedDict, total=False):
     week: Required[int]
     game_type_id: int
     game_clock: str | None
-    start_at: Required[str|None]
-    start_at_local: Required[str|None]
-    venue_id: int|None
+    game_status:str|None
+    start_at: Required[str | None]
+    start_at_local: Required[str | None]
+    venue_id: int | None
     broadcasting_options: list[str] | None
     relations: FixtureRelations
     metadata: Metadata
@@ -560,9 +561,6 @@ class _PlayerStat(TypedDict):
     photo_url: str
 
 
-StatCategory = Literal["offence", "defence", "special_teams"]
-
-
 class OffenceLeaders(TypedDict):
     """Offensive statistics categories"""
 
@@ -602,6 +600,6 @@ class SpecialTeamsLeaders(TypedDict):
 class LeagueLeaders(TypedDict):
     """Complete league leaders data structure"""
 
-    offence: OffenceLeaders
-    defence: DefenceLeaders
-    special_teams: SpecialTeamsLeaders
+    OFFENCE: OffenceLeaders
+    DEFENCE: DefenceLeaders
+    SPECIAL_TEAMS: SpecialTeamsLeaders

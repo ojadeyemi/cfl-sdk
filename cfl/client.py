@@ -346,6 +346,7 @@ class CFLClient:
         Returns:
             List of fixtures
         """
+        params = {"page": page, "limit": limit}
         if season_id:
             endpoint = SEASON_FIXTURES_ENDPOINT.format(season_id=season_id)
         else:
@@ -353,7 +354,7 @@ class CFLClient:
 
         fixtures = self._paginated_get(
             endpoint,
-            params={"page": page, "limit": limit},
+            params=params,
         )
 
         return fixtures
@@ -455,6 +456,7 @@ class CFLClient:
 
     def get_player_stats(
         self,
+        season_id: int | None = None,
         page: int = DEFAULT_PAGE,
         limit: int = DEFAULT_LIMIT,
     ) -> list[PlayerStats]:
@@ -469,6 +471,9 @@ class CFLClient:
             List of player statistics
         """
         params = {"page": page, "limit": limit}
+
+        if season_id:
+            params["season_id"] = season_id
 
         stats = self._paginated_get(
             PLAYER_STATS_ENDPOINT,
