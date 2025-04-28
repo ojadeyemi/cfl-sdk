@@ -107,7 +107,7 @@ class Fixture(TypedDict, total=False):
     week: Required[int]
     game_type_id: int
     game_clock: str | None
-    game_status:str|None
+    game_status: str | None
     start_at: Required[str | None]
     start_at_local: Required[str | None]
     venue_id: int | None
@@ -156,20 +156,20 @@ class LedgerTransaction(TypedDict):
 
     transaction_id: int
     description: str
-    accepted_at: str
+    accepted_at: NotRequired[str]
     distributed_at: str
     firstname: str
     lastname: str
     position: str
     nationality: str
-    college: str
-    team_abbr: str | None
+    college: str | None
+    team_abbr: NotRequired[str | None]
     action: str
     is_distributed: bool
     player_id: int
     resource_type: str
-    state_change: str
-    previous_state: str
+    state_change: str | None
+    previous_state: str | None
 
 
 class BaseTeamStats(TypedDict, total=False):
@@ -398,12 +398,12 @@ class FixtureTeamStatsWrapper(TypedDict, total=False):
 class TeamStats(TypedDict, total=False):
     """Team statistics"""
 
-    ID: int
+    ID: Required[int]
     abbreviation: str
     last_game_id: int | None
     name: str
     region_label: str
-    team_id: int
+    team_id: Required[int]
     seasons: list[SeasonTeamStats]
     fixtures: NotRequired[list[FixtureTeamStatsWrapper]]
     metadata: Metadata
@@ -507,7 +507,7 @@ class FixturePlayerStatsWrapper(TypedDict, total=False):
 class PlayerStats(TypedDict, total=False):
     """Player statistics"""
 
-    ID: int
+    ID: Required[int]
     seasons: list[SeasonPlayerStats]
     fixtures: list[FixturePlayerStatsWrapper]
     last_game_id: int
