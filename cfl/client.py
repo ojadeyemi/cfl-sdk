@@ -433,7 +433,7 @@ class CFLClient:
         if season_id:
             params["season_id"] = season_id
 
-        stats = self._paginated_get(
+        stats = self._get(
             TEAM_STATS_ENDPOINT,
             params=params,
         )
