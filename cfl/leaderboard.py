@@ -2,7 +2,7 @@
 
 from bs4 import BeautifulSoup, Tag
 
-from .constants import MAX_PLAYERS
+from .constants import MAX_LEADERBOARD_PLAYERS
 from .types import _PlayerStat
 
 STAT_CATEGORY_MAPPING = {
@@ -83,7 +83,7 @@ def _parse_stat_value(value_text: str) -> int | float:
         return 0.0 if "." in value_text else 0
 
 
-def parse_player_table(table_soup, max_players: int = MAX_PLAYERS) -> list[_PlayerStat]:
+def parse_player_table(table_soup, max_players: int = MAX_LEADERBOARD_PLAYERS) -> list[_PlayerStat]:
     players = []
     rows = table_soup.find_all("tr", class_="player-tooltip-wrapper")
 

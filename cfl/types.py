@@ -130,8 +130,8 @@ class RosterPlayer(TypedDict):
     college_id: int | None
     college: str
     position: str
-    return_from_injury_date: str | None
-    return_to_practice_date: str | None
+    return_from_injury_date: NotRequired[str | None]
+    return_to_practice_date: NotRequired[str | None]
     state: str
     available_roster: bool
     no_set: bool

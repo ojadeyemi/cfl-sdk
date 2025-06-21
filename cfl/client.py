@@ -521,17 +521,15 @@ class CFLClient:
         Returns:
             Dictionary containing standings data by division
         """
-
         if year < MIN_SEASON or year > MAX_SEASON:
             raise ValueError("Year must be between 2023 and 2025")
 
         url = f"{BASE_WEB_URL}/standings/{year}"
-
         standings: Standings = {"WEST": [], "EAST": []}
 
         try:
             with httpx.Client(timeout=DEFAULT_TIMEOUT) as client:
-                response = client.get(url, headers=self.headers)
+                response = client.get(url)
                 response.raise_for_status()
 
             soup = BeautifulSoup(response.text, "html.parser")
@@ -540,20 +538,30 @@ class CFLClient:
             if not tables:
                 return standings
 
-            for i, table in enumerate(tables):
-                if i > 1:  # Only process first two tables
-                    break
-
+            for i, table in enumerate(tables[:2]):
                 division = "WEST" if i == 0 else "EAST"
-                rows = table.find_all("tr")
+                thead = table.find("thead")
+                tbody = table.find("tbody")
 
-                if not rows:
+                if not thead or not tbody:
                     continue
 
-                headers = [header.text.strip() for header in rows[0].find_all("td")]
+                headers = [th.text.strip() for th in thead.find_all("th")]
 
-                for row in rows[1:]:
-                    team_data = {headers[j]: cell.text.strip() for j, cell in enumerate(row.find_all("td"))}
+                for row in tbody.find_all("tr"):
+                    cells = row.find_all("td")
+                    if len(cells) != len(headers):
+                        continue  # Skip malformed row
+
+                    team_data = {}
+                    for j, cell in enumerate(cells):
+                        text = cell.text.strip()
+                        if j == 1:
+                            team_name_tag = cell.find("a")
+                            text = team_name_tag.text.strip() if team_name_tag else text
+
+                        team_data[headers[j]] = text
+
                     standings[division].append(team_data)
 
         except (httpx.HTTPStatusError, httpx.RequestError, Exception):
