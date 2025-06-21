@@ -25,7 +25,7 @@ PLAYER_PIMS_ENDPOINT = "/stats/players/pims_player/{player_id}"
 LEADERBOARD_URL = f"{BASE_WEB_URL}/league-leaders"
 
 # Default parameters
-DEFAULT_SEASON = 2024
+DEFAULT_SEASON = 2025
 DEFAULT_LIMIT = 100
 DEFAULT_PAGE = 1
 DEFAULT_TIMEOUT = 30

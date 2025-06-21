@@ -525,7 +525,7 @@ class CFLClient:
         if year < MIN_SEASON or year > MAX_SEASON:
             raise ValueError("Year must be between 2023 and 2025")
 
-        url = f"{BASE_WEB_URL}/{year}standings"
+        url = f"{BASE_WEB_URL}/standings/{year}"
 
         standings: Standings = {"WEST": [], "EAST": []}
 
