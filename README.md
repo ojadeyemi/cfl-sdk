@@ -14,7 +14,7 @@ A modern Python SDK for the CFL (Canadian Football League) API using httpx.
 ## Installation
 
 ```bash
-pip install  git+https://@github.com/ojadeyemi/cfl-sdk.git
+pip install git+https://github.com/ojadeyemi/cfl-sdk.git
 ```
 
 ## Quick Start
@@ -34,7 +34,7 @@ for team in teams:
 fixtures = client.get_fixtures(season_id=123)
 
 # Get player stats
-player_stats = client.get_player_stats(season_id=123, team_id=456)
+player_stats = client.get_player_stats(season_id=123)
 ```
 
 ## API Reference
@@ -45,8 +45,8 @@ player_stats = client.get_player_stats(season_id=123, team_id=456)
 # Get all teams
 teams = client.get_teams()
 
-# Get specific team
-team = client.get_team(team_id=123)
+# Get a specific team
+team = client.get_team(team_id=1)
 ```
 
 ### Venues
@@ -86,7 +86,7 @@ fixtures = client.get_fixtures(season_id=123)
 rosters = client.get_rosters()
 
 # Get specific roster
-roster = client.get_roster(roster_id=123)
+roster = client.get_roster(roster_id=1)
 ```
 
 ### Ledger (Transactions)
@@ -164,3 +164,19 @@ with CFLClient() as client:
     teams = client.get_teams()
     # Client will be closed automatically
 ```
+
+## Acknowledgements
+
+**This SDK is made possible by the [Canadian Football League (CFL)](https://www.cfl.ca/) providing a public API. A big thank you to the CFL for making their data accessible to developers and fans.**
+
+## Disclaimer
+
+This is an unofficial SDK and is not affiliated with, endorsed, or sponsored by the Canadian Football League (CFL).
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a pull request or open an issue for any bugs or feature requests.
+
+## License
+
+This project is licensed under the MIT License. See the `LICENSE` file for more details.

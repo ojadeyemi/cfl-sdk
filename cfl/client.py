@@ -522,7 +522,7 @@ class CFLClient:
             Dictionary containing standings data by division
         """
         if year < MIN_SEASON or year > MAX_SEASON:
-            raise ValueError("Year must be between 2023 and 2025")
+            raise ValueError(f"Year must be between {MIN_SEASON} and {MAX_SEASON}")
 
         url = f"{BASE_WEB_URL}/standings/{year}"
         standings: Standings = {"WEST": [], "EAST": []}
