@@ -5,12 +5,16 @@ from typing import NotRequired, Required, TypedDict
 
 
 class Metadata(TypedDict):
+    """Revision tracking metadata for API entities"""
+
     created_at: datetime
     revision_at: datetime
     revision: int
 
 
 class Location(TypedDict, total=False):
+    """Address and location information"""
+
     street1: str | None
     street2: str | None
     city: str | None
@@ -20,6 +24,8 @@ class Location(TypedDict, total=False):
 
 
 class Genius(TypedDict, total=False):
+    """System-specific data and error tracking"""
+
     id: int
     error: str | None
     messages: list
@@ -27,6 +33,8 @@ class Genius(TypedDict, total=False):
 
 
 class Team(TypedDict):
+    """CFL team information and branding details"""
+
     ID: int
     name: str
     region_label: str
@@ -73,6 +81,8 @@ class Season(TypedDict):
 
 
 class FixtureVenue(TypedDict, total=False):
+    """Detailed venue information for game fixtures"""
+
     ID: int
     name: str
     capacity: int
@@ -90,6 +100,8 @@ class FixtureVenue(TypedDict, total=False):
 
 
 class FixtureRelations(TypedDict):
+    """Related entities for game fixtures"""
+
     venue: FixtureVenue
 
 
@@ -118,6 +130,8 @@ class Fixture(TypedDict, total=False):
 
 
 class RosterPlayer(TypedDict):
+    """Individual player information and details"""
+
     ID: int
     player_id: int
     firstname: str
@@ -173,6 +187,8 @@ class LedgerTransaction(TypedDict):
 
 
 class BaseTeamStats(TypedDict, total=False):
+    """Base class for all team statistical data"""
+
     defensiveExtraPointsBlocked: int | None
     driveGoalToGoSucceeded: int | None
     driveGoalToGoAttempted: int | None
@@ -371,6 +387,8 @@ class BaseTeamStats(TypedDict, total=False):
 
 
 class SeasonTeamStats(BaseTeamStats, total=False):
+    """Team statistics for an entire season"""
+
     season: Required[int]
     season_id: Required[int]
     team_id: Required[int]
@@ -380,12 +398,16 @@ class SeasonTeamStats(BaseTeamStats, total=False):
 
 
 class FixtureTeamStats(BaseTeamStats, total=False):
+    """Team statistics for a specific game"""
+
     driveGoalToGoSuccessful: int
     extraPointsBlocked: int
     fieldGoalsBlocked: int
 
 
 class FixtureTeamStatsWrapper(TypedDict, total=False):
+    """Wrapper containing game context and team statistics"""
+
     fixture_id: Required[int]
     genius_id: int
     season: int
@@ -410,6 +432,8 @@ class TeamStats(TypedDict, total=False):
 
 
 class BasePlayerStats(TypedDict, total=False):
+    """Base class for all player statistical data"""
+
     fieldGoalsMissedReturns: int | None
     fieldGoalsMissedReturnsYards: int | None
     fumbles: int | None
@@ -475,6 +499,8 @@ class BasePlayerStats(TypedDict, total=False):
 
 
 class SeasonPlayerStats(BasePlayerStats):
+    """Player statistics for an entire season"""
+
     hasParticipated: int
     opponent_team_abbreviation: str
     opponent_team_id: int
@@ -486,11 +512,15 @@ class SeasonPlayerStats(BasePlayerStats):
 
 
 class FixturePlayerStats(BasePlayerStats):
+    """Player statistics for a specific game"""
+
     hasParticipated: bool
     wasStarter: bool
 
 
 class FixturePlayerStatsWrapper(TypedDict, total=False):
+    """Wrapper containing game context and player statistics"""
+
     fixture_id: Required[int]
     genius_id: int
     season: int
@@ -523,12 +553,16 @@ class PlayerStats(TypedDict, total=False):
 
 
 class ErrorResponse(TypedDict):
+    """API error response structure"""
+
     error: str
     message: str
     status_code: int
 
 
 class StandingsStats(TypedDict):
+    """Individual team standings statistics"""
+
     RK: str
     TEAM: str
     GP: str

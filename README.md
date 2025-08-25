@@ -2,19 +2,26 @@
 
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
-A modern Python SDK for the CFL (Canadian Football League) API using httpx.
+A modern Python SDK for the **[Canadian Football League](https://www.cfl.ca/)** API using httpx.
 
 ## Features
 
 - Full type hints using modern Python typing
-- Complete API coverage
-- Pagination handling built-in
+- Comprehensive API coverage (most endpoints supported)
 - Error handling and logging
 
 ## Installation
 
+### From GitHub (current)
+
 ```bash
 pip install git+https://github.com/ojadeyemi/cfl-sdk.git
+```
+
+### With Poetry
+
+```bash
+poetry add git+https://github.com/ojadeyemi/cfl-sdk.git
 ```
 
 ## Quick Start
@@ -31,10 +38,10 @@ for team in teams:
     print(f"{team['name']} ({team['abbreviation']})")
 
 # Get fixtures for a season
-fixtures = client.get_fixtures(season_id=123)
+fixtures = client.get_fixtures(season_id=34)  # 2025 season
 
 # Get player stats
-player_stats = client.get_player_stats(season_id=123)
+player_stats = client.get_player_stats(season_id=34)  # 2025 season
 ```
 
 ## API Reference
@@ -56,7 +63,7 @@ team = client.get_team(team_id=1)
 venues = client.get_venues()
 
 # Get specific venue
-venue = client.get_venue(venue_id=123)
+venue = client.get_venue(venue_id=1)
 ```
 
 ### Seasons
@@ -66,7 +73,7 @@ venue = client.get_venue(venue_id=123)
 seasons = client.get_seasons()
 
 # Get specific season
-season = client.get_season(season_id=123)
+season = client.get_season(season_id=34)  # 2025 season
 ```
 
 ### Fixtures (Games)
@@ -76,7 +83,7 @@ season = client.get_season(season_id=123)
 fixtures = client.get_fixtures()
 
 # Get fixtures for a season
-fixtures = client.get_fixtures(season_id=123)
+fixtures = client.get_fixtures(season_id=34)  # 2025 season
 ```
 
 ### Rosters
@@ -103,10 +110,10 @@ transactions = client.get_ledger(year=2024)
 team_stats = client.get_team_stats()
 
 # Get team stats for a season
-team_stats = client.get_team_stats(season_id=123)
+team_stats = client.get_team_stats(season_id=34)  # 2025 season
 
 # Get specific team stats
-team_stat = client.get_team_stat(team_stats_id=123)
+team_stat = client.get_team_stat(team_stats_id=122345)
 ```
 
 ### Player Stats
@@ -116,23 +123,24 @@ team_stat = client.get_team_stat(team_stats_id=123)
 player_stats = client.get_player_stats()
 
 # Get specific player stats
-player_stat = client.get_player_stat(player_stats_id=123)
+player_stat = client.get_player_stat(player_stats_id=1629968)
 
-player_stat = client.get_player_pims(player_id=123)
+# Get player stats with photo URL
+player_stat = client.get_player_pims(player_id=168507)
 ```
 
 ### Standings
 
 ```python
-# Get standings for a year
-standings = client.get_standings(season=2024)
+# Get standings for a year (2023-2025 supported)
+standings = client.get_standings(year=2024)
 ```
 
 ### Leaderboard
 
 ```python
-# Get player leaderboard for differnet stats for a year
-leaderboard = client.get_leadeboards(season=2024)
+# Get player leaderboard for different stats for a year (2023-2025 supported)
+leaderboard = client.get_leaderboards(season=2024)
 ```
 
 ## Error Handling
@@ -147,7 +155,7 @@ The SDK provides specific error types:
 - `CFLAPIServerError`: For server errors
 
 ```python
-from cfl_sdk import CFLClient, CFLAPINotFoundError
+from cfl import CFLClient, CFLAPINotFoundError
 
 client = CFLClient()
 
@@ -165,18 +173,16 @@ with CFLClient() as client:
     # Client will be closed automatically
 ```
 
-## Acknowledgements
+## Acknowledgements & Disclaimer
 
-**This SDK is made possible by the [Canadian Football League (CFL)](https://www.cfl.ca/) providing a public API. A big thank you to the CFL for making their data accessible to developers and fans.**
-
-## Disclaimer
+Thank you to the **[Canadian Football League (CFL)](https://www.cfl.ca/)** for providing a public API.
 
 This is an unofficial SDK and is not affiliated with, endorsed, or sponsored by the Canadian Football League (CFL).
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a pull request or open an issue for any bugs or feature requests.
+Contributions are welcome! Please feel free to submit a pull request or [open an issue](https://github.com/ojadeyemi/cfl-sdk/issues) for any bugs or feature requests.
 
 ## License
 
-This project is licensed under the MIT License. See the `LICENSE` file for more details.
+This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for more details.

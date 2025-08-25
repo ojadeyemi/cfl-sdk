@@ -6,7 +6,7 @@ FORMAT = "[%(asctime)s] | %(levelname)s | [%(filename)s:%(lineno)d] | MESSAGE: %
 
 
 logging.basicConfig(
-    level="INFO",
+    level=logging.INFO,
     format=FORMAT,
     datefmt="%m/%d/%Y %I:%M:%S %p",
 )

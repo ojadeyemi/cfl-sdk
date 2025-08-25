@@ -7,7 +7,7 @@ readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.10"
 dependencies = [
-    "httpx[http2] (>=0.28,<0.29)",
+    "httpx[http2] (>=0.28,<0.30)",
     "beautifulsoup4 (>=4.13.3,<5.0.0)",
 ]
 

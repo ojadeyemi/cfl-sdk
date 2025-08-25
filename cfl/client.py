@@ -1,9 +1,8 @@
-# type: ignore
-# TODO cast data to right type before returning
 """CFL API Client for accessing CFL data."""
 
 import asyncio
 import json
+from typing import cast
 from urllib.parse import urljoin
 
 import httpx
@@ -59,6 +58,7 @@ from .types import (
     Roster,
     Season,
     Standings,
+    StandingsStats,
     Team,
     TeamStats,
     Venue,
@@ -120,7 +120,7 @@ class CFLClient:
         Raises:
             CFLAPIResponseError: For API errors
         """
-        logger.debug(f"Response status: {response.status_code}")
+        logger.debug("Response status: %s", response.status_code)
 
         try:
             response.raise_for_status()
@@ -175,7 +175,7 @@ class CFLClient:
             CFLAPITimeoutError: For request timeouts
         """
         url = self._url(endpoint)
-        logger.debug(f"{method} {url}")
+        logger.debug("%s %s", method, url)
 
         try:
             response = self.client.request(
@@ -188,15 +188,15 @@ class CFLClient:
             return self._handle_response(response)
 
         except httpx.ConnectError as e:
-            logger.error(f"Connection error: {e}")
+            logger.error("Connection error: %s", e)
             raise CFLAPIConnectionError(f"Failed to connect: {e}") from e
 
         except httpx.TimeoutException as e:
-            logger.error(f"Request timed out: {e}")
+            logger.error("Request timed out: %s", e)
             raise CFLAPITimeoutError(f"Request timed out: {e}") from e
 
         except Exception as e:
-            logger.error(f"Request failed: {e}")
+            logger.error("Request failed: %s", e)
             raise
 
     def _get(
@@ -238,25 +238,19 @@ class CFLClient:
         params["limit"] = limit
         params["page"] = page
 
-        response = self._get(endpoint, params)
-        return response
+        results = self._get(endpoint, params)
+        return cast(list[dict], results)
 
     def get_teams(
         self,
     ) -> list[Team]:
         """Get all CFL teams.
 
-        Args:
-            page: Page number
-            limit: Items per page
-
         Returns:
             List of teams
         """
-        teams = self._get(
-            TEAMS_ENDPOINT,
-        )
-        return teams
+        results = self._get(TEAMS_ENDPOINT)
+        return cast(list[Team], results)
 
     def get_team(self, team_id: int) -> Team:
         """Get team details by ID.
@@ -268,26 +262,19 @@ class CFLClient:
             Team details
         """
         endpoint = TEAM_ENDPOINT.format(team_id=team_id)
-
-        return self._get(endpoint)
+        results = self._get(endpoint)
+        return cast(Team, results)
 
     def get_venues(
         self,
     ) -> list[Venue]:
         """Get all CFL venues.
 
-        Args:
-            page: Page number
-            limit: Items per page
-
         Returns:
             List of venues
         """
-        venues = self._paginated_get(
-            VENUES_ENDPOINT,
-        )
-
-        return venues
+        results = self._paginated_get(VENUES_ENDPOINT)
+        return cast(list[Venue], results)
 
     def get_venue(self, venue_id: int) -> Venue:
         """Get venue details by ID.
@@ -299,8 +286,8 @@ class CFLClient:
             Venue details
         """
         endpoint = VENUE_ENDPOINT.format(venue_id=venue_id)
-
-        return self._get(endpoint)
+        results = self._get(endpoint)
+        return cast(Venue, results)
 
     def get_seasons(self, page: int = DEFAULT_PAGE, limit: int = DEFAULT_LIMIT) -> list[Season]:
         """Get all seasons.
@@ -312,12 +299,11 @@ class CFLClient:
         Returns:
             List of seasons
         """
-        seasons = self._paginated_get(
+        results = self._paginated_get(
             SEASONS_ENDPOINT,
             params={"page": page, "limit": limit},
         )
-
-        return seasons
+        return cast(list[Season], results)
 
     def get_season(self, season_id: int) -> Season:
         """Get season details by ID.
@@ -329,8 +315,8 @@ class CFLClient:
             Season details
         """
         endpoint = SEASON_ENDPOINT.format(season_id=season_id)
-
-        return self._get(endpoint)
+        results = self._get(endpoint)
+        return cast(Season, results)
 
     def get_fixtures(
         self,
@@ -354,32 +340,20 @@ class CFLClient:
         else:
             endpoint = FIXTURES_ENDPOINT
 
-        fixtures = self._paginated_get(
-            endpoint,
-            params=params,
-        )
-
-        return fixtures
+        results = self._paginated_get(endpoint, params=params)
+        return cast(list[Fixture], results)
 
     def get_rosters(
         self,
     ) -> list[Roster]:
         """Get all rosters.
 
-        Args:
-            team_id: Optional team filter
-            page: Page number
-            limit: Items per page
-
         Returns:
             List of rosters
         """
 
-        rosters = self._get(
-            ROSTERS_ENDPOINT,
-        )
-
-        return rosters
+        results = self._get(ROSTERS_ENDPOINT)
+        return cast(list[Roster], results)
 
     def get_roster(self, roster_id: int) -> Roster:
         """Get roster details by ID.
@@ -391,8 +365,8 @@ class CFLClient:
             Roster details
         """
         endpoint = ROSTER_ENDPOINT.format(roster_id=roster_id)
-
-        return self._get(endpoint)
+        results = self._get(endpoint)
+        return cast(Roster, results)
 
     def get_ledger(
         self,
@@ -402,18 +376,13 @@ class CFLClient:
 
         Args:
             year: Year to fetch (e.g., 2024)
-            page: Page number
-            limit: Items per page
 
         Returns:
             List of transactions
         """
         endpoint = LEDGER_ENDPOINT.format(year=year)
-        transactions = self._get(
-            endpoint,
-        )
-
-        return transactions
+        results = self._get(endpoint)
+        return cast(list[LedgerTransaction], results)
 
     def get_team_stats(
         self,
@@ -423,8 +392,6 @@ class CFLClient:
 
         Args:
             season_id: Optional season filter
-            page: Page number
-            limit: Items per page
 
         Returns:
             List of team statistics
@@ -433,12 +400,8 @@ class CFLClient:
         if season_id:
             params["season_id"] = season_id
 
-        stats = self._get(
-            TEAM_STATS_ENDPOINT,
-            params=params,
-        )
-
-        return stats
+        results = self._get(TEAM_STATS_ENDPOINT, params=params)
+        return cast(list[TeamStats], results)
 
     def get_team_stat(self, team_stats_id: int, season_id: int | None = None) -> TeamStats:
         """Get team stats by ID.
@@ -454,7 +417,8 @@ class CFLClient:
         if season_id:
             params["season_id"] = season_id
 
-        return self._get(endpoint, params=params)
+        results = self._get(endpoint, params=params)
+        return cast(TeamStats, results)
 
     def get_player_stats(
         self,
@@ -462,10 +426,10 @@ class CFLClient:
         page: int = DEFAULT_PAGE,
         limit: int = DEFAULT_LIMIT,
     ) -> list[PlayerStats]:
-        """Get culumnating player statistics.
+        """Get cumulative player statistics.
 
         Args:
-            team_id: Optional team filter
+            season_id: Optional season filter
             page: Page number
             limit: Items per page
 
@@ -477,11 +441,8 @@ class CFLClient:
         if season_id:
             params["season_id"] = season_id
 
-        stats = self._paginated_get(
-            PLAYER_STATS_ENDPOINT,
-            params=params,
-        )
-        return stats
+        results = self._paginated_get(PLAYER_STATS_ENDPOINT, params=params)
+        return cast(list[PlayerStats], results)
 
     def get_player_stat(self, player_stats_id: int) -> PlayerStats:
         """Get player stats by Player stats ID.
@@ -493,7 +454,8 @@ class CFLClient:
             Player statistics
         """
         endpoint = PLAYER_STAT_ENDPOINT.format(player_stats_id=player_stats_id)
-        return self._get(endpoint)
+        results = self._get(endpoint)
+        return cast(PlayerStats, results)
 
     def get_player_pims(self, player_id: int) -> PlayerStats:
         """Get player stats by PIMS ID (player id).
@@ -505,12 +467,12 @@ class CFLClient:
             Player statistics with photo URL
         """
         endpoint = PLAYER_PIMS_ENDPOINT.format(player_id=player_id)
-        data = self._get(endpoint)
+        results = self._get(endpoint)
 
-        if data:
-            data["photo_url"] = f"https://static.cfl.ca/wp-content/uploads/{player_id}.png"
+        if results:
+            results["photo_url"] = f"https://static.cfl.ca/wp-content/uploads/{player_id}.png"
 
-        return data
+        return cast(PlayerStats, results)
 
     def get_standings(self, year: int = DEFAULT_SEASON) -> Standings:
         """Get Standings data of a season
@@ -540,29 +502,29 @@ class CFLClient:
 
             for i, table in enumerate(tables[:2]):
                 division = "WEST" if i == 0 else "EAST"
-                thead = table.find("thead")
-                tbody = table.find("tbody")
+                thead = table.find("thead")  # type: ignore
+                tbody = table.find("tbody")  # type: ignore
 
                 if not thead or not tbody:
                     continue
 
-                headers = [th.text.strip() for th in thead.find_all("th")]
+                headers = [th.text.strip() for th in thead.find_all("th")]  # type: ignore
 
-                for row in tbody.find_all("tr"):
-                    cells = row.find_all("td")
+                for row in tbody.find_all("tr"):  # type: ignore
+                    cells = row.find_all("td")  # type: ignore
                     if len(cells) != len(headers):
                         continue  # Skip malformed row
 
-                    team_data = {}
+                    team_data: dict[str, str] = {}
                     for j, cell in enumerate(cells):
                         text = cell.text.strip()
                         if j == 1:
-                            team_name_tag = cell.find("a")
-                            text = team_name_tag.text.strip() if team_name_tag else text
+                            team_name_tag = cell.find("a")  # type: ignore
+                            text = team_name_tag.text.strip() if team_name_tag else text  # type: ignore
 
                         team_data[headers[j]] = text
 
-                    standings[division].append(team_data)
+                    standings[division].append(cast(StandingsStats, team_data))
 
         except (httpx.HTTPStatusError, httpx.RequestError, Exception):
             return standings
@@ -574,7 +536,7 @@ class CFLClient:
         if season < MIN_SEASON or season > MAX_SEASON:
             raise ValueError(f"Season must be between {MIN_SEASON} and {MAX_SEASON}")
 
-        result: LeagueLeaders = {OFFENCE: {}, DEFENCE: {}, SPECIAL_TEAMS: {}}
+        result = cast(LeagueLeaders, {OFFENCE: {}, DEFENCE: {}, SPECIAL_TEAMS: {}})
         categories: list[str] = ["offence", "defence", "special_teams"]
 
         async with httpx.AsyncClient(timeout=DEFAULT_TIMEOUT) as client:
@@ -584,12 +546,14 @@ class CFLClient:
                 url = f"{LEADERBOARD_URL}?stat_category={category}&season={season}"
                 tasks.append(client.get(url, headers=self.headers))
 
-            responses: list[httpx.Response] = await asyncio.gather(*tasks, return_exceptions=True)
+            responses = await asyncio.gather(*tasks, return_exceptions=True)
 
             for category, response in zip(categories, responses):
                 if isinstance(response, Exception):
                     continue
 
+                # Type guard to ensure response is httpx.Response
+                response = cast(httpx.Response, response)
                 if response.status_code == 200:
                     category_data = parse_leaderboard_category(response.text, category)
                     result[category.upper()] = category_data
