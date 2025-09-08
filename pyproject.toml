@@ -10,7 +10,6 @@ dependencies = [
     "httpx[http2] (>=0.28,<0.30)",
     "beautifulsoup4 (>=4.13.3,<5.0.0)",
 ]
-
 classifiers = [
     "Development Status :: 4 - Beta",
     "License :: OSI Approved :: MIT License",
@@ -24,6 +23,9 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: Implementation :: CPython",
 ]
+
+[tool.poetry]
+packages = [{ include = "cfl" }, { include = "README.md" }]
 
 
 [build-system]
