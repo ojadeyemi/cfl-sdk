@@ -1,7 +1,7 @@
 [project]
-name = "cfl"
-version = "0.1.0"
-description = "SDK for CFL API"
+name = "cfl-sdk"
+version = "0.0.1"
+description = "Python SDK for the Canadian Football League (CFL) API"
 authors = [{ name = "OJ Adeyemi", email = "ojieadeyemi@gmail.com" }]
 readme = "README.md"
 license = { file = "LICENSE" }

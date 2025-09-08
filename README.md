@@ -12,16 +12,14 @@ A modern Python SDK for the **[Canadian Football League](https://www.cfl.ca/)** 
 
 ## Installation
 
-### From GitHub (current)
-
 ```bash
-pip install git+https://github.com/ojadeyemi/cfl-sdk.git
+pip install cfl-sdk
 ```
 
 ### With Poetry
 
 ```bash
-poetry add git+https://github.com/ojadeyemi/cfl-sdk.git
+poetry add cfl-sdk
 ```
 
 ## Quick Start
@@ -69,8 +67,8 @@ venue = client.get_venue(venue_id=1)
 ### Seasons
 
 ```python
-# Get all seasons
-seasons = client.get_seasons()
+# Get all seasons (with optional pagination)
+seasons = client.get_seasons(page=1, limit=50)
 
 # Get specific season
 season = client.get_season(season_id=34)  # 2025 season
@@ -79,11 +77,11 @@ season = client.get_season(season_id=34)  # 2025 season
 ### Fixtures (Games)
 
 ```python
-# Get all fixtures
-fixtures = client.get_fixtures()
+# Get all fixtures (with optional pagination)
+fixtures = client.get_fixtures(page=1, limit=50)
 
 # Get fixtures for a season
-fixtures = client.get_fixtures(season_id=34)  # 2025 season
+fixtures = client.get_fixtures(season_id=34, page=1, limit=50)  # 2025 season
 ```
 
 ### Rosters
@@ -119,8 +117,8 @@ team_stat = client.get_team_stat(team_stats_id=122345)
 ### Player Stats
 
 ```python
-# Get player stats
-player_stats = client.get_player_stats()
+# Get player stats (with optional pagination and season filter)
+player_stats = client.get_player_stats(season_id=34, page=1, limit=50)
 
 # Get specific player stats
 player_stat = client.get_player_stat(player_stats_id=1629968)
