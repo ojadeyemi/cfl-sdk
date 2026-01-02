@@ -7,7 +7,7 @@ readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.10"
 dependencies = [
-    "httpx[http2] (>=0.28,<0.30)",
+    "httpx[http2] (>=0.28,<0.40)",
     "beautifulsoup4 (>=4.13.3,<5.0.0)",
 ]
 classifiers = [
@@ -33,4 +33,4 @@ requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.group.dev.dependencies]
-pylint = "^3.3.6"
+pylint = "^3.3.9"

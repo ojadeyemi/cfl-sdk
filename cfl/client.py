@@ -567,7 +567,7 @@ class CFLClient:
 
         except RuntimeError as e:
             # Fallback if there's already a running event loop
-            logger.warning(f"Warning there is already a running event loop {e}")
+            logger.warning("Warning there is already a running event loop %s", e)
             loop = asyncio.get_event_loop()
 
             return loop.run_until_complete(self.get_leaderboards_async(season))
