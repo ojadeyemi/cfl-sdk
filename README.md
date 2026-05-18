@@ -27,10 +27,9 @@ poetry add cfl-sdk
 ```python
 from cfl import CFLClient
 
-# Create client
 client = CFLClient()
 
-# Get teams
+# Get all teams
 teams = client.get_teams()
 for team in teams:
     print(f"{team['name']} ({team['abbreviation']})")
@@ -38,8 +37,8 @@ for team in teams:
 # Get fixtures for a season
 fixtures = client.get_fixtures(season_id=34)  # 2025 season
 
-# Get player stats
-player_stats = client.get_player_stats(season_id=34)  # 2025 season
+# Get players filtered by position
+qbs = client.get_players(position="QB", limit=20)
 ```
 
 ## API Reference
@@ -52,6 +51,9 @@ teams = client.get_teams()
 
 # Get a specific team
 team = client.get_team(team_id=1)
+
+# Get a team's full current roster
+roster = client.get_team_roster(team_id=1)
 ```
 
 ### Venues
@@ -62,6 +64,29 @@ venues = client.get_venues()
 
 # Get specific venue
 venue = client.get_venue(venue_id=1)
+```
+
+### Players
+
+```python
+# Get players (filterable)
+players = client.get_players(limit=50)
+players = client.get_players(position="QB")
+players = client.get_players(college_id=295)
+players = client.get_players(sort_by="lastname", sort_order="asc", page=2, limit=25)
+
+# Get a specific player
+player = client.get_player(player_id=183186)
+
+# Embed college details in the response
+player = client.get_player(player_id=183186, with_college=True)
+# player["relations"]["college"] -> college object
+
+# Search players by name pattern
+results = client.search_players("mitchell")  # returns [{ID, name}, ...]
+
+# Get all position definitions
+positions = client.get_player_positions()
 ```
 
 ### Seasons
@@ -77,11 +102,20 @@ season = client.get_season(season_id=34)  # 2025 season
 ### Fixtures (Games)
 
 ```python
-# Get all fixtures (with optional pagination)
-fixtures = client.get_fixtures(page=1, limit=50)
+# Get fixtures (with optional filters and pagination)
+fixtures = client.get_fixtures(limit=50)
+fixtures = client.get_fixtures(season_id=34)
+fixtures = client.get_fixtures(home_team_id=1)
+fixtures = client.get_fixtures(away_team_id=1)
+fixtures = client.get_fixtures(venue_id=1)
 
-# Get fixtures for a season
-fixtures = client.get_fixtures(season_id=34, page=1, limit=50)  # 2025 season
+# Get a specific fixture
+fixture = client.get_fixture(fixture_id=6555)
+
+# Embed related objects
+fixture = client.get_fixture(fixture_id=6555, with_venue=True)
+fixture = client.get_fixture(fixture_id=6555, with_season=True)
+# fixture["relations"]["venue"] -> venue object
 ```
 
 ### Rosters
@@ -92,6 +126,46 @@ rosters = client.get_rosters()
 
 # Get specific roster
 roster = client.get_roster(roster_id=1)
+
+# Get per-team roster state and nationality counts
+summary = client.get_rosters_summary()
+```
+
+### Roster Players
+
+```python
+# Get all roster player entries
+roster_players = client.get_roster_players(limit=50)
+
+# Filter to a specific player's entry
+entries = client.get_roster_players(player_id=183186)
+
+# Embed full player object
+entries = client.get_roster_players(with_player=True, limit=25)
+# entries[0]["relations"]["player"] -> full player object
+
+# Get a specific roster player entry
+rp = client.get_roster_player(rosterplayer_id=26733)
+rp = client.get_roster_player(rosterplayer_id=26733, with_player=True)
+
+# Get all valid roster states
+states = client.get_roster_player_states()
+```
+
+### Colleges
+
+```python
+# Get all colleges
+colleges = client.get_colleges(limit=50)
+
+# Filter by name
+colleges = client.get_colleges(name="laval")
+
+# Sort and paginate
+colleges = client.get_colleges(sort_by="name", sort_order="asc", page=1, limit=25)
+
+# Get a specific college
+college = client.get_college(college_id=295)
 ```
 
 ### Ledger (Transactions)
