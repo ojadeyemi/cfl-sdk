@@ -99,10 +99,115 @@ class FixtureVenue(TypedDict, total=False):
     metadata: Metadata
 
 
-class FixtureRelations(TypedDict):
+class College(TypedDict, total=False):
+    """CFL college/university information"""
+
+    ID: Required[int]
+    name: Required[str]
+    location: str
+    region: str
+    conference: str
+    metadata: Metadata
+
+
+class PlayerLookup(TypedDict):
+    """Lightweight player search result from lookup endpoint"""
+
+    ID: int
+    name: str
+
+
+PlayerPosition = TypedDict(
+    "PlayerPosition",
+    {"value": int, "str": str, "description": str, "order": int, "squad": str},
+)
+"""Player position enum entry"""
+
+RosterPlayerState = TypedDict(
+    "RosterPlayerState",
+    {"value": int, "str": str, "description": str, "order": int},
+)
+"""Roster player state enum entry"""
+
+
+class Player(TypedDict, total=False):
+    """CFL player profile"""
+
+    ID: Required[int]
+    firstname: Required[str]
+    lastname: Required[str]
+    middlenames: str | None
+    nationality: str
+    position: str
+    roster_counter: str
+    college_id: int | None
+    jersey_no: int | None
+    jersey_no_alt: int | None
+    height_ft: int | None
+    height_in: int | None
+    weight_lbs: int | None
+    birthdate: str | None
+    birthplace: str | None
+    draft_year: int | None
+    draft_round: int | None
+    draft_pick: int | None
+    draft_overall_pick: int | None
+    draft_team: str | None
+    eligibility: str | None
+    eligibility_team_id: int | None
+    veteran_status: int | None
+    current_veteran_status: str | None
+    headshot_url: str | None
+    circle_headshot_url: str | None
+    relations: NotRequired["PlayerRelations"]
+    metadata: Metadata
+
+
+class PlayerRelations(TypedDict, total=False):
+    """Related entities embedded on a player"""
+
+    college: College
+
+
+class RosterPlayerRelations(TypedDict, total=False):
+    """Related entities embedded on a roster player"""
+
+    player: Player
+
+
+class RosterSummaryTeam(TypedDict, total=False):
+    """Team reference within a roster summary entry"""
+
+    ID: int
+    name: str
+    region_label: str
+
+
+class RosterSummary(TypedDict):
+    """Per-team roster state and nationality counts"""
+
+    ID: int
+    no_entry_state: int
+    game_roster_state: int
+    practice_roster_state: int
+    negotiation_list_state: int
+    injury_state: int
+    suspension_state: int
+    retired_state: int
+    canadian_nationality: int
+    canadian_nationality_rostered: int
+    american_nationality: int
+    american_nationality_rostered: int
+    other_nationality: int
+    other_nationality_rostered: int
+    team: RosterSummaryTeam
+
+
+class FixtureRelations(TypedDict, total=False):
     """Related entities for game fixtures"""
 
     venue: FixtureVenue
+    season: Season
 
 
 class Fixture(TypedDict, total=False):
@@ -152,6 +257,7 @@ class RosterPlayer(TypedDict):
     team_id: list[int]
     teams: list[str]
     files: list
+    relations: NotRequired[RosterPlayerRelations]
     metadata: Metadata
 
 

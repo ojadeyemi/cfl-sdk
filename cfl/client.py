@@ -11,28 +11,40 @@ from bs4 import BeautifulSoup
 from .constants import (
     BASE_API_URL,
     BASE_WEB_URL,
+    COLLEGE_ENDPOINT,
+    COLLEGES_ENDPOINT,
     DEFAULT_HEADERS,
     DEFAULT_LIMIT,
     DEFAULT_PAGE,
     DEFAULT_SEASON,
     DEFAULT_TIMEOUT,
     DEFENCE,
+    FIXTURE_ENDPOINT,
     FIXTURES_ENDPOINT,
     LEADERBOARD_URL,
     LEDGER_ENDPOINT,
     MAX_SEASON,
     MIN_SEASON,
     OFFENCE,
+    PLAYER_ENDPOINT,
+    PLAYER_LOOKUP_ENDPOINT,
     PLAYER_PIMS_ENDPOINT,
+    PLAYER_POSITIONS_ENDPOINT,
     PLAYER_STAT_ENDPOINT,
     PLAYER_STATS_ENDPOINT,
+    PLAYERS_ENDPOINT,
     ROSTER_ENDPOINT,
+    ROSTER_PLAYER_ENDPOINT,
+    ROSTER_PLAYER_STATES_ENDPOINT,
+    ROSTER_PLAYERS_ENDPOINT,
     ROSTERS_ENDPOINT,
+    ROSTERS_SUMMARY_ENDPOINT,
     SEASON_ENDPOINT,
     SEASON_FIXTURES_ENDPOINT,
     SEASONS_ENDPOINT,
     SPECIAL_TEAMS,
     TEAM_ENDPOINT,
+    TEAM_ROSTER_ENDPOINT,
     TEAM_STAT_ENDPOINT,
     TEAM_STATS_ENDPOINT,
     TEAMS_ENDPOINT,
@@ -51,11 +63,18 @@ from .exceptions import (
 from .leaderboard import parse_leaderboard_category
 from .logger import logger
 from .types import (
+    College,
     Fixture,
     LeagueLeaders,
     LedgerTransaction,
+    Player,
+    PlayerLookup,
+    PlayerPosition,
     PlayerStats,
     Roster,
+    RosterPlayer,
+    RosterPlayerState,
+    RosterSummary,
     Season,
     Standings,
     StandingsStats,
@@ -265,6 +284,19 @@ class CFLClient:
         results = self._get(endpoint)
         return cast(Team, results)
 
+    def get_team_roster(self, team_id: int) -> Roster:
+        """Get the current roster for a team including all roster players.
+
+        Args:
+            team_id: Team ID
+
+        Returns:
+            Roster with nested rosterplayers list
+        """
+        endpoint = TEAM_ROSTER_ENDPOINT.format(team_id=team_id)
+        results = self._get(endpoint)
+        return cast(Roster, results)
+
     def get_venues(
         self,
     ) -> list[Venue]:
@@ -289,6 +321,81 @@ class CFLClient:
         results = self._get(endpoint)
         return cast(Venue, results)
 
+    def get_players(
+        self,
+        position: str | None = None,
+        college_id: int | None = None,
+        sort_by: str | None = None,
+        sort_order: str | None = None,
+        page: int = DEFAULT_PAGE,
+        limit: int = DEFAULT_LIMIT,
+    ) -> list[Player]:
+        """Get CFL players with optional filters.
+
+        Args:
+            position: Position code filter (e.g. "QB", "RB", "DB")
+            college_id: Filter by college ID
+            sort_by: Field to sort by
+            sort_order: "asc" or "desc"
+            page: Page number
+            limit: Items per page
+
+        Returns:
+            List of players
+        """
+        params: dict = {}
+        if position:
+            params["position"] = position
+        if college_id:
+            params["college_id"] = college_id
+        if sort_by:
+            params["sort_by"] = sort_by
+        if sort_order:
+            params["sort_order"] = sort_order
+
+        results = self._paginated_get(PLAYERS_ENDPOINT, params=params, limit=limit, page=page)
+        return cast(list[Player], results)
+
+    def get_player(self, player_id: int, with_college: bool = False) -> Player:
+        """Get player details by ID.
+
+        Args:
+            player_id: Player ID
+            with_college: Embed college object under relations.college
+
+        Returns:
+            Player details
+        """
+        endpoint = PLAYER_ENDPOINT.format(player_id=player_id)
+        params: dict = {}
+        if with_college:
+            params["with"] = "college"
+
+        results = self._get(endpoint, params=params or None)
+        return cast(Player, results)
+
+    def search_players(self, pattern: str) -> list[PlayerLookup]:
+        """Search players by name pattern (regex supported).
+
+        Args:
+            pattern: Name pattern to search
+
+        Returns:
+            List of lightweight {ID, name} matches
+        """
+        endpoint = PLAYER_LOOKUP_ENDPOINT.format(pattern=pattern)
+        results = self._get(endpoint)
+        return cast(list[PlayerLookup], results)
+
+    def get_player_positions(self) -> list[PlayerPosition]:
+        """Get all player position definitions.
+
+        Returns:
+            List of position enums with squad grouping
+        """
+        results = self._get(PLAYER_POSITIONS_ENDPOINT)
+        return cast(list[PlayerPosition], results)
+
     def get_seasons(self, page: int = DEFAULT_PAGE, limit: int = DEFAULT_LIMIT) -> list[Season]:
         """Get all seasons.
 
@@ -299,10 +406,7 @@ class CFLClient:
         Returns:
             List of seasons
         """
-        results = self._paginated_get(
-            SEASONS_ENDPOINT,
-            params={"page": page, "limit": limit},
-        )
+        results = self._paginated_get(SEASONS_ENDPOINT, limit=limit, page=page)
         return cast(list[Season], results)
 
     def get_season(self, season_id: int) -> Season:
@@ -321,6 +425,9 @@ class CFLClient:
     def get_fixtures(
         self,
         season_id: int | None = None,
+        home_team_id: int | None = None,
+        away_team_id: int | None = None,
+        venue_id: int | None = None,
         page: int = DEFAULT_PAGE,
         limit: int = DEFAULT_LIMIT,
     ) -> list[Fixture]:
@@ -328,20 +435,55 @@ class CFLClient:
 
         Args:
             season_id: Optional season filter
+            home_team_id: Filter by home team ID
+            away_team_id: Filter by away team ID
+            venue_id: Filter by venue ID
             page: Page number
             limit: Items per page
 
         Returns:
             List of fixtures
         """
-        params = {"page": page, "limit": limit}
+        params: dict = {}
+        if home_team_id:
+            params["home_team_id"] = home_team_id
+        if away_team_id:
+            params["away_team_id"] = away_team_id
+        if venue_id:
+            params["venue_id"] = venue_id
+
         if season_id:
             endpoint = SEASON_FIXTURES_ENDPOINT.format(season_id=season_id)
         else:
             endpoint = FIXTURES_ENDPOINT
 
-        results = self._paginated_get(endpoint, params=params)
+        results = self._paginated_get(endpoint, params=params, limit=limit, page=page)
         return cast(list[Fixture], results)
+
+    def get_fixture(
+        self,
+        fixture_id: int,
+        with_venue: bool = False,
+        with_season: bool = False,
+    ) -> Fixture:
+        """Get a single fixture (game) by ID.
+
+        Args:
+            fixture_id: Fixture ID
+            with_venue: Embed venue object under relations.venue
+            with_season: Embed season object under relations.season
+
+        Returns:
+            Fixture details
+        """
+        endpoint = FIXTURE_ENDPOINT.format(fixture_id=fixture_id)
+        params: dict = {}
+        with_values = [k for k, v in [("venue", with_venue), ("season", with_season)] if v]
+        if with_values:
+            params["with"] = ",".join(with_values)
+
+        results = self._get(endpoint, params=params or None)
+        return cast(Fixture, results)
 
     def get_rosters(
         self,
@@ -368,6 +510,69 @@ class CFLClient:
         results = self._get(endpoint)
         return cast(Roster, results)
 
+    def get_rosters_summary(self) -> list[RosterSummary]:
+        """Get roster state and nationality counts for all teams.
+
+        Returns:
+            List of per-team roster summaries
+        """
+        results = self._get(ROSTERS_SUMMARY_ENDPOINT)
+        return cast(list[RosterSummary], results)
+
+    def get_roster_players(
+        self,
+        player_id: int | None = None,
+        with_player: bool = False,
+        page: int = DEFAULT_PAGE,
+        limit: int = DEFAULT_LIMIT,
+    ) -> list[RosterPlayer]:
+        """Get roster player entries with optional filters.
+
+        Args:
+            player_id: Filter to a specific player's roster entry
+            with_player: Embed full player object under relations.player
+            page: Page number
+            limit: Items per page
+
+        Returns:
+            List of roster player entries
+        """
+        params: dict = {}
+        if player_id:
+            params["player_id"] = player_id
+        if with_player:
+            params["with"] = "player"
+
+        results = self._paginated_get(ROSTER_PLAYERS_ENDPOINT, params=params, limit=limit, page=page)
+        return cast(list[RosterPlayer], results)
+
+    def get_roster_player(self, rosterplayer_id: int, with_player: bool = False) -> RosterPlayer:
+        """Get a single roster player entry by ID.
+
+        Args:
+            rosterplayer_id: Roster player ID
+            with_player: Embed full player object under relations.player
+
+        Returns:
+            Roster player details
+        """
+        endpoint = ROSTER_PLAYER_ENDPOINT.format(rosterplayer_id=rosterplayer_id)
+        params: dict = {}
+        if with_player:
+            params["with"] = "player"
+
+        results = self._get(endpoint, params=params or None)
+        return cast(RosterPlayer, results)
+
+    def get_roster_player_states(self) -> list[RosterPlayerState]:
+        """Get all valid roster player state definitions.
+
+        Returns:
+            List of state enums (game_roster, practice_roster, injured, etc.)
+        """
+        results = self._get(ROSTER_PLAYER_STATES_ENDPOINT)
+        return cast(list[RosterPlayerState], results)
+
     def get_ledger(
         self,
         year: int,
@@ -383,6 +588,50 @@ class CFLClient:
         endpoint = LEDGER_ENDPOINT.format(year=year)
         results = self._get(endpoint)
         return cast(list[LedgerTransaction], results)
+
+    def get_colleges(
+        self,
+        name: str | None = None,
+        sort_by: str | None = None,
+        sort_order: str | None = None,
+        page: int = DEFAULT_PAGE,
+        limit: int = DEFAULT_LIMIT,
+    ) -> list[College]:
+        """Get colleges with optional filters.
+
+        Args:
+            name: Filter by college name
+            sort_by: Field to sort by
+            sort_order: "asc" or "desc"
+            page: Page number
+            limit: Items per page
+
+        Returns:
+            List of colleges
+        """
+        params: dict = {}
+        if name:
+            params["name"] = name
+        if sort_by:
+            params["sort_by"] = sort_by
+        if sort_order:
+            params["sort_order"] = sort_order
+
+        results = self._paginated_get(COLLEGES_ENDPOINT, params=params, limit=limit, page=page)
+        return cast(list[College], results)
+
+    def get_college(self, college_id: int) -> College:
+        """Get college details by ID.
+
+        Args:
+            college_id: College ID
+
+        Returns:
+            College details
+        """
+        endpoint = COLLEGE_ENDPOINT.format(college_id=college_id)
+        results = self._get(endpoint)
+        return cast(College, results)
 
     def get_team_stats(
         self,
@@ -436,12 +685,12 @@ class CFLClient:
         Returns:
             List of player statistics
         """
-        params = {"page": page, "limit": limit}
+        params = {}
 
         if season_id:
             params["season_id"] = season_id
 
-        results = self._paginated_get(PLAYER_STATS_ENDPOINT, params=params)
+        results = self._paginated_get(PLAYER_STATS_ENDPOINT, params=params, limit=limit, page=page)
         return cast(list[PlayerStats], results)
 
     def get_player_stat(self, player_stats_id: int) -> PlayerStats:
