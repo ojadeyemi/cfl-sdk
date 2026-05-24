@@ -2,7 +2,9 @@
 
 import logging
 
-FORMAT = "[%(asctime)s] | %(levelname)s | [%(filename)s:%(lineno)d] | MESSAGE: %(message)s"
+FORMAT = (
+    "[%(asctime)s] | %(levelname)s | [%(filename)s:%(lineno)d] | MESSAGE: %(message)s"
+)
 
 
 logging.basicConfig(

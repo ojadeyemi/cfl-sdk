@@ -353,7 +353,9 @@ class CFLClient:
         if sort_order:
             params["sort_order"] = sort_order
 
-        results = self._paginated_get(PLAYERS_ENDPOINT, params=params, limit=limit, page=page)
+        results = self._paginated_get(
+            PLAYERS_ENDPOINT, params=params, limit=limit, page=page
+        )
         return cast(list[Player], results)
 
     def get_player(self, player_id: int, with_college: bool = False) -> Player:
@@ -396,7 +398,9 @@ class CFLClient:
         results = self._get(PLAYER_POSITIONS_ENDPOINT)
         return cast(list[PlayerPosition], results)
 
-    def get_seasons(self, page: int = DEFAULT_PAGE, limit: int = DEFAULT_LIMIT) -> list[Season]:
+    def get_seasons(
+        self, page: int = DEFAULT_PAGE, limit: int = DEFAULT_LIMIT
+    ) -> list[Season]:
         """Get all seasons.
 
         Args:
@@ -478,7 +482,9 @@ class CFLClient:
         """
         endpoint = FIXTURE_ENDPOINT.format(fixture_id=fixture_id)
         params: dict = {}
-        with_values = [k for k, v in [("venue", with_venue), ("season", with_season)] if v]
+        with_values = [
+            k for k, v in [("venue", with_venue), ("season", with_season)] if v
+        ]
         if with_values:
             params["with"] = ",".join(with_values)
 
@@ -543,10 +549,14 @@ class CFLClient:
         if with_player:
             params["with"] = "player"
 
-        results = self._paginated_get(ROSTER_PLAYERS_ENDPOINT, params=params, limit=limit, page=page)
+        results = self._paginated_get(
+            ROSTER_PLAYERS_ENDPOINT, params=params, limit=limit, page=page
+        )
         return cast(list[RosterPlayer], results)
 
-    def get_roster_player(self, rosterplayer_id: int, with_player: bool = False) -> RosterPlayer:
+    def get_roster_player(
+        self, rosterplayer_id: int, with_player: bool = False
+    ) -> RosterPlayer:
         """Get a single roster player entry by ID.
 
         Args:
@@ -617,7 +627,9 @@ class CFLClient:
         if sort_order:
             params["sort_order"] = sort_order
 
-        results = self._paginated_get(COLLEGES_ENDPOINT, params=params, limit=limit, page=page)
+        results = self._paginated_get(
+            COLLEGES_ENDPOINT, params=params, limit=limit, page=page
+        )
         return cast(list[College], results)
 
     def get_college(self, college_id: int) -> College:
@@ -652,7 +664,9 @@ class CFLClient:
         results = self._get(TEAM_STATS_ENDPOINT, params=params)
         return cast(list[TeamStats], results)
 
-    def get_team_stat(self, team_stats_id: int, season_id: int | None = None) -> TeamStats:
+    def get_team_stat(
+        self, team_stats_id: int, season_id: int | None = None
+    ) -> TeamStats:
         """Get team stats by ID.
 
         Args:
@@ -690,7 +704,9 @@ class CFLClient:
         if season_id:
             params["season_id"] = season_id
 
-        results = self._paginated_get(PLAYER_STATS_ENDPOINT, params=params, limit=limit, page=page)
+        results = self._paginated_get(
+            PLAYER_STATS_ENDPOINT, params=params, limit=limit, page=page
+        )
         return cast(list[PlayerStats], results)
 
     def get_player_stat(self, player_stats_id: int) -> PlayerStats:
@@ -719,7 +735,9 @@ class CFLClient:
         results = self._get(endpoint)
 
         if results:
-            results["photo_url"] = f"https://static.cfl.ca/wp-content/uploads/{player_id}.png"
+            results["photo_url"] = (
+                f"https://static.cfl.ca/wp-content/uploads/{player_id}.png"
+            )
 
         return cast(PlayerStats, results)
 
@@ -780,7 +798,9 @@ class CFLClient:
 
         return standings
 
-    async def get_leaderboards_async(self, season: int = DEFAULT_SEASON) -> LeagueLeaders:
+    async def get_leaderboards_async(
+        self, season: int = DEFAULT_SEASON
+    ) -> LeagueLeaders:
         """Get league leaders for all categories asynchronously"""
         if season < MIN_SEASON or season > MAX_SEASON:
             raise ValueError(f"Season must be between {MIN_SEASON} and {MAX_SEASON}")

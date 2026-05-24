@@ -47,7 +47,13 @@ DEFAULT_CATEGORIES = {
         "RECEPTIONS": [],
         "TARGETS": [],
     },
-    "defence": {"TOTAL_TACKLES": [], "SACKS": [], "INTERCEPTIONS": [], "FORCED_FUMBLES": [], "FUMBLE_RECOVERIES": []},
+    "defence": {
+        "TOTAL_TACKLES": [],
+        "SACKS": [],
+        "INTERCEPTIONS": [],
+        "FORCED_FUMBLES": [],
+        "FUMBLE_RECOVERIES": [],
+    },
     "special_teams": {
         "FIELD_GOALS": [],
         "PUNTING_YARDS_AVG": [],
@@ -83,7 +89,9 @@ def _parse_stat_value(value_text: str) -> int | float:
         return 0.0 if "." in value_text else 0
 
 
-def parse_player_table(table_soup, max_players: int = MAX_LEADERBOARD_PLAYERS) -> list[_PlayerStat]:
+def parse_player_table(
+    table_soup, max_players: int = MAX_LEADERBOARD_PLAYERS
+) -> list[_PlayerStat]:
     players = []
     rows = table_soup.find_all("tr", class_="player-tooltip-wrapper")
 
@@ -129,7 +137,9 @@ def parse_player_table(table_soup, max_players: int = MAX_LEADERBOARD_PLAYERS) -
     return players
 
 
-def parse_leaderboard_category(html_content: str, category: str) -> dict[str, list[_PlayerStat]]:
+def parse_leaderboard_category(
+    html_content: str, category: str
+) -> dict[str, list[_PlayerStat]]:
     soup = BeautifulSoup(html_content, "html.parser")
     tables: list[Tag] = soup.find_all("table")  # type: ignore
 
