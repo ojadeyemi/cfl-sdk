@@ -30,11 +30,11 @@ ROSTER_PLAYER_STATES_ENDPOINT = "/rosterplayers/states"
 COLLEGES_ENDPOINT = "/colleges"
 COLLEGE_ENDPOINT = "/colleges/{college_id}"
 LEDGER_ENDPOINT = "/ledger/{year}"
-TEAM_STATS_ENDPOINT = "/stats/teams"
-TEAM_STAT_ENDPOINT = "/stats/teams/{team_stats_id}"
-PLAYER_STATS_ENDPOINT = "/stats/players"
-PLAYER_STAT_ENDPOINT = "/stats/players/{player_stats_id}"
-PLAYER_PIMS_ENDPOINT = "/stats/players/pims_player/{player_id}"
+TEAM_STATS_ENDPOINT = "/stats/teamrecords"
+TEAM_STAT_ENDPOINT = "/stats/teamrecords/{team_stats_id}"
+PLAYER_STATS_ENDPOINT = "/stats/playerrecords"
+PLAYER_STAT_ENDPOINT = "/stats/playerrecords/{player_stats_id}"
+PLAYER_PIMS_ENDPOINT = "/stats/playerrecords/pims_player/{player_id}"
 LEADERBOARD_URL = f"{BASE_WEB_URL}/league-leaders"
 
 # Request Configuration
@@ -51,11 +51,11 @@ USER_AGENTS = [
 ]
 
 # API Parameters
-DEFAULT_SEASON = 2025
+DEFAULT_SEASON = 2026
 DEFAULT_LIMIT = 100
 DEFAULT_PAGE = 1
 MIN_SEASON = 2023
-MAX_SEASON = 2025
+MAX_SEASON = 2026
 MAX_LEADERBOARD_PLAYERS = 10
 
 # Player Position Categories

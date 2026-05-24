@@ -65,11 +65,11 @@ class Venue(TypedDict):
     metadata: Metadata
 
 
-class Season(TypedDict):
+class Season(TypedDict, total=False):
     """Important dates for specific season"""
 
-    ID: int
-    year: int
+    ID: Required[int]
+    year: Required[int]
     preseason_weeks: list[str]
     season_weeks: list[str]
     semi_final_weeks: list[str]
@@ -242,7 +242,7 @@ class RosterPlayer(TypedDict):
     firstname: str
     lastname: str
     jersey_no: int | None
-    birthdate: str
+    birthdate: str | None
     height_ft: int | None
     height_in: int | None
     weight_lbs: int | None
