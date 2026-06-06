@@ -4,6 +4,11 @@
 
 A modern Python SDK for the **[Canadian Football League](https://www.cfl.ca/)** API using httpx.
 
+[Features](#features) · [Installation](#installation) · [Quick Start](#quick-start) · [API Reference](#api-reference) · [Built with CFL SDK](#built-with-cfl-sdk) · [Contributing](#contributing)
+
+
+---
+
 ## Features
 
 - Full type hints using modern Python typing
@@ -35,13 +40,17 @@ for team in teams:
     print(f"{team['name']} ({team['abbreviation']})")
 
 # Get fixtures for a season
-fixtures = client.get_fixtures(season_id=34)  # 2025 season
+fixtures = client.get_fixtures(season_id=35)  # 2026 season
 
 # Get players filtered by position
 qbs = client.get_players(position="QB", limit=20)
 ```
 
 ## API Reference
+
+[Teams](#teams) · [Venues](#venues) · [Players](#players) · [Seasons](#seasons) · [Fixtures](#fixtures-games) · [Rosters](#rosters) · [Roster Players](#roster-players) · [Colleges](#colleges) · [Ledger](#ledger-transactions) · [Team Stats](#team-stats) · [Player Stats](#player-stats) · [Standings](#standings) · [Leaderboard](#leaderboard)
+
+---
 
 ### Teams
 
@@ -96,7 +105,7 @@ positions = client.get_player_positions()
 seasons = client.get_seasons(page=1, limit=50)
 
 # Get specific season
-season = client.get_season(season_id=34)  # 2025 season
+season = client.get_season(season_id=35)  # 2026 season
 ```
 
 ### Fixtures (Games)
@@ -104,7 +113,7 @@ season = client.get_season(season_id=34)  # 2025 season
 ```python
 # Get fixtures (with optional filters and pagination)
 fixtures = client.get_fixtures(limit=50)
-fixtures = client.get_fixtures(season_id=34)
+fixtures = client.get_fixtures(season_id=35)  # 2026 season
 fixtures = client.get_fixtures(home_team_id=1)
 fixtures = client.get_fixtures(away_team_id=1)
 fixtures = client.get_fixtures(venue_id=1)
@@ -172,7 +181,7 @@ college = client.get_college(college_id=295)
 
 ```python
 # Get transactions for a year
-transactions = client.get_ledger(year=2024)
+transactions = client.get_ledger(year=2026)
 ```
 
 ### Team Stats
@@ -182,7 +191,7 @@ transactions = client.get_ledger(year=2024)
 team_stats = client.get_team_stats()
 
 # Get team stats for a season
-team_stats = client.get_team_stats(season_id=34)  # 2025 season
+team_stats = client.get_team_stats(season_id=35)  # 2026 season
 
 # Get specific team stats
 team_stat = client.get_team_stat(team_stats_id=122345)
@@ -192,7 +201,7 @@ team_stat = client.get_team_stat(team_stats_id=122345)
 
 ```python
 # Get player stats (with optional pagination and season filter)
-player_stats = client.get_player_stats(season_id=34, page=1, limit=50)
+player_stats = client.get_player_stats(season_id=35, page=1, limit=50)
 
 # Get specific player stats
 player_stat = client.get_player_stat(player_stats_id=1629968)
@@ -204,14 +213,14 @@ player_stat = client.get_player_pims(player_id=168507)
 ### Standings
 
 ```python
-# Get standings for a year (2023-2025 supported)
-standings = client.get_standings(year=2024)
+# Get standings for a year (2023-2026 supported)
+standings = client.get_standings(year=2026)
 ```
 
 ### Leaderboard
 
 ```python
-# Get player leaderboard for different stats for a year (2023-2025 supported)
+# Get player leaderboard for different stats for a year (2023-2026 supported)
 leaderboard = client.get_leaderboards(season=2024)
 ```
 
@@ -250,6 +259,14 @@ with CFLClient() as client:
 Thank you to the **[Canadian Football League (CFL)](https://www.cfl.ca/)** for providing a public API.
 
 This is an unofficial SDK and is not affiliated with, endorsed, or sponsored by the Canadian Football League (CFL).
+
+## Built with CFL SDK
+
+Using this SDK in a project? Open a PR to add it here!
+
+| Project | Description |
+|---------|-------------|
+| *Your project here* | [Open a PR](https://github.com/ojadeyemi/cfl-sdk/pulls) to add yours |
 
 ## Contributing
 

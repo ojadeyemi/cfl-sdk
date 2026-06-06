@@ -55,3 +55,7 @@ venv.bak/
 .DS_Store
 
 routes.txt
+
+# Claude Code
+.claude/
+CLAUDE.md

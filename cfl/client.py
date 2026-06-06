@@ -590,7 +590,7 @@ class CFLClient:
         """Get player transactions.
 
         Args:
-            year: Year to fetch (e.g., 2024)
+            year: Year to fetch (e.g., 2026)
 
         Returns:
             List of transactions
@@ -745,7 +745,7 @@ class CFLClient:
         """Get Standings data of a season
 
         Args:
-            year: Season year (valid options: 2023-2025)
+            year: Season year (valid options: 2023-2026)
 
         Returns:
             Dictionary containing standings data by division
