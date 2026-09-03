@@ -38,8 +38,7 @@ class CFLAPINotFoundError(CFLAPIResponseError):
 class CFLAPIAuthenticationError(CFLAPIResponseError):
     """Raised for authentication errors (401, 403)."""
 
-    def __init__(self, status_code: int, message: str):
-        super().__init__(status_code, message)
+    pass
 
 
 class CFLAPIValidationError(CFLAPIResponseError):

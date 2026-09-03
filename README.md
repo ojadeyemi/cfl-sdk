@@ -284,6 +284,7 @@ Using this SDK in a project? Open a PR to add it here!
 
 | Project | Description |
 |---------|-------------|
+| [Northscore API](https://api.northscore.ca/redoc) | Public API for Canadian sports leagues — powers its CFL games, standings, leaderboards, rosters and stats endpoints |
 | *Your project here* | [Open a PR](https://github.com/ojadeyemi/cfl-sdk/pulls) to add yours |
 
 ## Contributing
