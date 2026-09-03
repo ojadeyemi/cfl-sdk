@@ -667,79 +667,66 @@ class ErrorResponse(TypedDict):
 
 
 class StandingsStats(TypedDict):
-    """Individual team standings statistics"""
+    """Individual team standings row (from echo.pims.cfl.ca/api/standings)"""
 
-    RK: str
-    TEAM: str
-    GP: str
-    W: str
-    L: str
-    T: str
-    PTS: str
-    F: str
-    A: str
-    HOME: str
-    AWAY: str
-    DIV: str
+    division_id: int
+    division_name: str
+    place: int
+    place_override: int
+    team_id: int
+    abbreviation: str
+    games_played: int
+    wins: int
+    losses: int
+    ties: int
+    points: int
+    winning_percentage: float
+    points_for: int
+    points_against: int
+    home_wins: int
+    home_losses: int
+    home_ties: int
+    away_wins: int
+    away_losses: int
+    away_ties: int
+    division_wins: int
+    division_losses: int
+    division_ties: int
+    season: int
 
 
 class Standings(TypedDict):
-    """Type hint for standings"""
+    """Season standings, split by division plus a combined ``unified`` table"""
 
-    WEST: list[StandingsStats]
-    EAST: list[StandingsStats]
-
-
-class _PlayerStat(TypedDict):
-    """Individual player statistic entry"""
-
-    rank: int
-    player_id: str
-    player_name: str
-    team_abbreviation: str
-    value: int | float
-    photo_url: str
+    week: int
+    east: list[StandingsStats]
+    west: list[StandingsStats]
+    unified: list[StandingsStats]
 
 
-class OffenceLeaders(TypedDict):
-    """Offensive statistics categories"""
+class LeaderEntry(TypedDict):
+    """A single player's entry in a league-leaders category"""
 
-    PASSING_YARDS: list[_PlayerStat]
-    PASSING_TDS: list[_PlayerStat]
-    RUSHING_YARDS: list[_PlayerStat]
-    RUSHING_TDS: list[_PlayerStat]
-    RECEIVING_YARDS: list[_PlayerStat]
-    RECEIVING_TDS: list[_PlayerStat]
-    RECEPTIONS: list[_PlayerStat]
-    TARGETS: list[_PlayerStat]
-
-
-class DefenceLeaders(TypedDict):
-    """Defensive statistics categories"""
-
-    TOTAL_TACKLES: list[_PlayerStat]
-    SACKS: list[_PlayerStat]
-    INTERCEPTIONS: list[_PlayerStat]
-    FORCED_FUMBLES: list[_PlayerStat]
-    FUMBLE_RECOVERIES: list[_PlayerStat]
+    statValue: int | float
+    player_id: int
+    firstname: str
+    lastname: str
+    position: str
+    team_id: int
+    image_url: str
 
 
-class SpecialTeamsLeaders(TypedDict):
-    """Special teams statistics categories"""
+class LeaderCategory(TypedDict):
+    """One stat category and its ranked list of player leaders"""
 
-    FIELD_GOALS: list[_PlayerStat]
-    PUNTING_YARDS_AVG: list[_PlayerStat]
-    PUNT_RETURNS_YARDS: list[_PlayerStat]
-    KICKOFF_RETURNS_YARDS: list[_PlayerStat]
-    FIELD_GOAL_MISS_RETURNS_YARDS: list[_PlayerStat]
-    KICKOFFS_YARDS_AVG: list[_PlayerStat]
-    KICKS_BLOCKED: list[_PlayerStat]
-    TACKLES_SPECIAL_TEAMS: list[_PlayerStat]
+    category: str
+    leaders: list[LeaderEntry]
 
 
 class LeagueLeaders(TypedDict):
-    """Complete league leaders data structure"""
+    """League leaders grouped by squad (from api.stats.cfl.ca/stats/leaders)"""
 
-    OFFENCE: OffenceLeaders
-    DEFENCE: DefenceLeaders
-    SPECIAL_TEAMS: SpecialTeamsLeaders
+    availableSeasons: list[int]
+    offence: list[LeaderCategory]
+    defence: list[LeaderCategory]
+    special_teams: list[LeaderCategory]

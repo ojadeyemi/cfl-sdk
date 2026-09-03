@@ -1,6 +1,6 @@
 [project]
 name = "cfl-sdk"
-version = "0.0.4"
+version = "0.1.0"
 description = "Python SDK for the Canadian Football League (CFL) API"
 authors = [{ name = "OJ Adeyemi", email = "ojieadeyemi@gmail.com" }]
 readme = "README.md"
@@ -8,7 +8,6 @@ license = { file = "LICENSE" }
 requires-python = ">=3.10"
 dependencies = [
     "httpx[http2] (>=0.28,<0.40)",
-    "beautifulsoup4 (>=4.13.3,<5.0.0)",
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -33,4 +32,11 @@ requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.group.dev.dependencies]
-pylint = "^3.3.9"
+pylint = "^4.0.8"
+pytest = "^9.1.1"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "network: test calls the live CFL API (needs internet; deselect with -m 'not network')",
+]

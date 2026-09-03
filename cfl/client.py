@@ -1,31 +1,27 @@
 """CFL API Client for accessing CFL data."""
 
-import asyncio
 import json
 from typing import cast
 from urllib.parse import urljoin
 
 import httpx
-from bs4 import BeautifulSoup
 
 from .constants import (
     BASE_API_URL,
-    BASE_WEB_URL,
     COLLEGE_ENDPOINT,
     COLLEGES_ENDPOINT,
-    DEFAULT_HEADERS,
+    DEFAULT_LEADERS_COUNT,
     DEFAULT_LIMIT,
     DEFAULT_PAGE,
     DEFAULT_SEASON,
     DEFAULT_TIMEOUT,
-    DEFENCE,
     FIXTURE_ENDPOINT,
     FIXTURES_ENDPOINT,
-    LEADERBOARD_URL,
+    LEADERS_ENDPOINT,
     LEDGER_ENDPOINT,
+    MAX_LEADERS_COUNT,
     MAX_SEASON,
     MIN_SEASON,
-    OFFENCE,
     PLAYER_ENDPOINT,
     PLAYER_LOOKUP_ENDPOINT,
     PLAYER_PIMS_ENDPOINT,
@@ -42,7 +38,8 @@ from .constants import (
     SEASON_ENDPOINT,
     SEASON_FIXTURES_ENDPOINT,
     SEASONS_ENDPOINT,
-    SPECIAL_TEAMS,
+    STANDINGS_ENDPOINT,
+    STATS_API_URL,
     TEAM_ENDPOINT,
     TEAM_ROSTER_ENDPOINT,
     TEAM_STAT_ENDPOINT,
@@ -50,7 +47,6 @@ from .constants import (
     TEAMS_ENDPOINT,
     VENUE_ENDPOINT,
     VENUES_ENDPOINT,
-    get_random_user_agent,
 )
 from .exceptions import (
     CFLAPIAuthenticationError,
@@ -60,7 +56,6 @@ from .exceptions import (
     CFLAPITimeoutError,
     CFLAPIValidationError,
 )
-from .leaderboard import parse_leaderboard_category
 from .logger import logger
 from .types import (
     College,
@@ -77,11 +72,16 @@ from .types import (
     RosterSummary,
     Season,
     Standings,
-    StandingsStats,
     Team,
     TeamStats,
     Venue,
 )
+
+
+def _validate_season(year: int) -> None:
+    """Raise ``ValueError`` if ``year`` is outside the supported range."""
+    if year < MIN_SEASON or year > MAX_SEASON:
+        raise ValueError(f"Year must be between {MIN_SEASON} and {MAX_SEASON}")
 
 
 class CFLClient:
@@ -101,7 +101,6 @@ class CFLClient:
 
         self.base_url = base_url
         self.timeout = timeout
-        self.headers = {**DEFAULT_HEADERS, "User-Agent": get_random_user_agent()}
         self.client = httpx.Client(timeout=timeout)
 
     def __enter__(self):
@@ -124,8 +123,8 @@ class CFLClient:
         Returns:
             Complete URL
         """
-
-        return urljoin(self.base_url, f"/api/{endpoint.lstrip('/')}")
+        path = endpoint.lstrip("/")
+        return urljoin(self.base_url, f"/api/{path}")
 
     def _handle_response(self, response: httpx.Response) -> dict:
         """Process API response and handle errors.
@@ -174,15 +173,15 @@ class CFLClient:
     def _request(
         self,
         method: str,
-        endpoint: str,
+        url: str,
         params: dict | None = None,
         json_data: dict | None = None,
     ) -> dict:
-        """Send HTTP request to the API.
+        """Send an HTTP request to a fully-qualified URL.
 
         Args:
             method: HTTP method
-            endpoint: API endpoint
+            url: Absolute request URL
             params: Query parameters
             json_data: JSON request body
 
@@ -193,7 +192,6 @@ class CFLClient:
             CFLAPIConnectionError: For connection failures
             CFLAPITimeoutError: For request timeouts
         """
-        url = self._url(endpoint)
         logger.debug("%s %s", method, url)
 
         try:
@@ -223,17 +221,37 @@ class CFLClient:
         endpoint: str,
         params: dict | None = None,
     ) -> dict:
-        """Send GET request to API.
+        """Send a GET request to the main CFL API (``BASE_API_URL``).
 
         Args:
-            endpoint: API endpoint
+            endpoint: API endpoint path
             params: Query parameters
 
         Returns:
             Response JSON data
         """
 
-        return self._request("GET", endpoint, params=params)
+        return self._request("GET", self._url(endpoint), params=params)
+
+    def _get_stats_api(
+        self,
+        endpoint: str,
+        params: dict | None = None,
+    ) -> dict:
+        """Send a GET request to the CFL stats API (``STATS_API_URL``).
+
+        This is a separate service from the main API with its own response
+        shapes; only the league-leaders endpoint currently uses it.
+
+        Args:
+            endpoint: Endpoint path relative to ``STATS_API_URL``
+            params: Query parameters
+
+        Returns:
+            Response JSON data
+        """
+        path = endpoint.lstrip("/")
+        return self._request("GET", f"{STATS_API_URL}/{path}", params=params)
 
     def _paginated_get(
         self,
@@ -742,101 +760,54 @@ class CFLClient:
         return cast(PlayerStats, results)
 
     def get_standings(self, year: int = DEFAULT_SEASON) -> Standings:
-        """Get Standings data of a season
+        """Get the season standings, split by division.
 
         Args:
-            year: Season year (valid options: 2023-2026)
+            year: Season year (2016-2026 supported)
 
         Returns:
-            Dictionary containing standings data by division
+            Standings with ``east``, ``west`` and combined ``unified`` tables,
+            plus the ``week`` the standings reflect
+
+        Raises:
+            ValueError: If ``year`` is outside the supported range
+            CFLAPINotFoundError: If the season has no standings
         """
-        if year < MIN_SEASON or year > MAX_SEASON:
-            raise ValueError(f"Year must be between {MIN_SEASON} and {MAX_SEASON}")
+        _validate_season(year)
 
-        url = f"{BASE_WEB_URL}/standings/{year}"
-        standings: Standings = {"WEST": [], "EAST": []}
+        endpoint = STANDINGS_ENDPOINT.format(year=year)
+        data = self._get(endpoint).get("data", {})
+        divisions = data.get("divisions", {})
 
-        try:
-            with httpx.Client(timeout=DEFAULT_TIMEOUT) as client:
-                response = client.get(url)
-                response.raise_for_status()
-
-            soup = BeautifulSoup(response.text, "html.parser")
-            tables = soup.find_all("table")
-
-            if not tables:
-                return standings
-
-            for i, table in enumerate(tables[:2]):
-                division = "WEST" if i == 0 else "EAST"
-                thead = table.find("thead")  # type: ignore
-                tbody = table.find("tbody")  # type: ignore
-
-                if not thead or not tbody:
-                    continue
-
-                headers = [th.text.strip() for th in thead.find_all("th")]  # type: ignore
-
-                for row in tbody.find_all("tr"):  # type: ignore
-                    cells = row.find_all("td")  # type: ignore
-                    if len(cells) != len(headers):
-                        continue  # Skip malformed row
-
-                    team_data: dict[str, str] = {}
-                    for j, cell in enumerate(cells):
-                        text = cell.text.strip()
-                        if j == 1:
-                            team_name_tag = cell.find("a")  # type: ignore
-                            text = team_name_tag.text.strip() if team_name_tag else text  # type: ignore
-
-                        team_data[headers[j]] = text
-
-                    standings[division].append(cast(StandingsStats, team_data))
-
-        except (httpx.HTTPStatusError, httpx.RequestError, Exception):
-            return standings
-
+        standings: Standings = {
+            "week": data.get("week", 0),
+            "east": divisions.get("east", {}).get("standings", []),
+            "west": divisions.get("west", {}).get("standings", []),
+            "unified": divisions.get("unified", {}).get("standings", []),
+        }
         return standings
 
-    async def get_leaderboards_async(
-        self, season: int = DEFAULT_SEASON
+    def get_leaderboards(
+        self,
+        season: int = DEFAULT_SEASON,
+        count: int = DEFAULT_LEADERS_COUNT,
     ) -> LeagueLeaders:
-        """Get league leaders for all categories asynchronously"""
-        if season < MIN_SEASON or season > MAX_SEASON:
-            raise ValueError(f"Season must be between {MIN_SEASON} and {MAX_SEASON}")
+        """Get league leaders for every stat category.
 
-        result = cast(LeagueLeaders, {OFFENCE: {}, DEFENCE: {}, SPECIAL_TEAMS: {}})
-        categories: list[str] = ["offence", "defence", "special_teams"]
+        Args:
+            season: Season year (2016-2026 supported)
+            count: Players to return per category (1-25, default 3)
 
-        async with httpx.AsyncClient(timeout=DEFAULT_TIMEOUT) as client:
-            tasks = []
+        Returns:
+            League leaders grouped into ``offence``, ``defence`` and
+            ``special_teams``
 
-            for category in categories:
-                url = f"{LEADERBOARD_URL}?stat_category={category}&season={season}"
-                tasks.append(client.get(url, headers=self.headers))
+        Raises:
+            ValueError: If ``season`` is outside the supported range
+        """
+        _validate_season(season)
 
-            responses = await asyncio.gather(*tasks, return_exceptions=True)
-
-            for category, response in zip(categories, responses):
-                if isinstance(response, Exception):
-                    continue
-
-                # Type guard to ensure response is httpx.Response
-                response = cast(httpx.Response, response)
-                if response.status_code == 200:
-                    category_data = parse_leaderboard_category(response.text, category)
-                    result[category.upper()] = category_data
-
-        return result
-
-    def get_leaderboards(self, season: int = DEFAULT_SEASON) -> LeagueLeaders:
-        """Get league leaders for all categories"""
-        try:
-            return asyncio.run(self.get_leaderboards_async(season))
-
-        except RuntimeError as e:
-            # Fallback if there's already a running event loop
-            logger.warning("Warning there is already a running event loop %s", e)
-            loop = asyncio.get_event_loop()
-
-            return loop.run_until_complete(self.get_leaderboards_async(season))
+        endpoint = LEADERS_ENDPOINT.format(year=season)
+        params = {"count": max(1, min(count, MAX_LEADERS_COUNT))}
+        results = self._get_stats_api(endpoint, params=params)
+        return cast(LeagueLeaders, results)

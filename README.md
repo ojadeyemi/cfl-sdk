@@ -40,7 +40,7 @@ for team in teams:
     print(f"{team['name']} ({team['abbreviation']})")
 
 # Get fixtures for a season
-fixtures = client.get_fixtures(season_id=35)  # 2026 season
+fixtures = client.get_fixtures(season_id=75)  # 2026 season
 
 # Get players filtered by position
 qbs = client.get_players(position="QB", limit=20)
@@ -105,7 +105,7 @@ positions = client.get_player_positions()
 seasons = client.get_seasons(page=1, limit=50)
 
 # Get specific season
-season = client.get_season(season_id=35)  # 2026 season
+season = client.get_season(season_id=75)  # 2026 season
 ```
 
 ### Fixtures (Games)
@@ -113,7 +113,7 @@ season = client.get_season(season_id=35)  # 2026 season
 ```python
 # Get fixtures (with optional filters and pagination)
 fixtures = client.get_fixtures(limit=50)
-fixtures = client.get_fixtures(season_id=35)  # 2026 season
+fixtures = client.get_fixtures(season_id=75)  # 2026 season
 fixtures = client.get_fixtures(home_team_id=1)
 fixtures = client.get_fixtures(away_team_id=1)
 fixtures = client.get_fixtures(venue_id=1)
@@ -191,7 +191,7 @@ transactions = client.get_ledger(year=2026)
 team_stats = client.get_team_stats()
 
 # Get team stats for a season
-team_stats = client.get_team_stats(season_id=35)  # 2026 season
+team_stats = client.get_team_stats(season_id=75)  # 2026 season
 
 # Get specific team stats
 team_stat = client.get_team_stat(team_stats_id=122345)
@@ -201,7 +201,7 @@ team_stat = client.get_team_stat(team_stats_id=122345)
 
 ```python
 # Get player stats (with optional pagination and season filter)
-player_stats = client.get_player_stats(season_id=35, page=1, limit=50)
+player_stats = client.get_player_stats(season_id=75, page=1, limit=50)
 
 # Get specific player stats
 player_stat = client.get_player_stat(player_stats_id=1629968)
@@ -213,15 +213,33 @@ player_stat = client.get_player_pims(player_id=168507)
 ### Standings
 
 ```python
-# Get standings for a year (2023-2026 supported)
+# Get standings for a year (2016-2026 supported)
 standings = client.get_standings(year=2026)
+
+standings["week"]      # week the standings reflect
+standings["east"]      # list of team rows for the East division
+standings["west"]      # list of team rows for the West division
+standings["unified"]   # combined table (available from 2020 on)
+
+row = standings["west"][0]
+row["place"], row["abbreviation"], row["wins"], row["losses"], row["ties"]
 ```
 
 ### Leaderboard
 
 ```python
-# Get player leaderboard for different stats for a year (2023-2026 supported)
-leaderboard = client.get_leaderboards(season=2024)
+# Get league leaders for every stat category (2016-2026 supported)
+leaders = client.get_leaderboards(season=2026)
+
+# Return more players per category (1-25, default 3)
+leaders = client.get_leaderboards(season=2026, count=10)
+
+leaders["offence"]        # [{"category": "passing", "leaders": [...]}, ...]
+leaders["defence"]        # [{"category": "tackles", "leaders": [...]}, ...]
+leaders["special_teams"]  # [{"category": "fieldGoalsSucceeded", "leaders": [...]}, ...]
+
+top_passer = leaders["offence"][0]["leaders"][0]
+top_passer["firstname"], top_passer["lastname"], top_passer["statValue"]
 ```
 
 ## Error Handling
