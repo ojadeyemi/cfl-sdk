@@ -1,12 +1,10 @@
 """Constants for the CFL API SDK."""
 
-import random
-
 # Base URLs
 BASE_API_URL = "https://echo.pims.cfl.ca/api"
-BASE_WEB_URL = "https://www.cfl.ca"
+STATS_API_URL = "https://api.stats.cfl.ca"
 
-# API Endpoints
+# API Endpoints (relative to BASE_API_URL)
 TEAMS_ENDPOINT = "/teams"
 TEAM_ENDPOINT = "/teams/{team_id}"
 TEAM_ROSTER_ENDPOINT = "/teams/{team_id}/roster"
@@ -35,35 +33,21 @@ TEAM_STAT_ENDPOINT = "/stats/teamrecords/{team_stats_id}"
 PLAYER_STATS_ENDPOINT = "/stats/playerrecords"
 PLAYER_STAT_ENDPOINT = "/stats/playerrecords/{player_stats_id}"
 PLAYER_PIMS_ENDPOINT = "/stats/playerrecords/pims_player/{player_id}"
-LEADERBOARD_URL = f"{BASE_WEB_URL}/league-leaders"
+STANDINGS_ENDPOINT = "/standings/{year}"
+
+# API Endpoints (relative to STATS_API_URL)
+LEADERS_ENDPOINT = "/stats/leaders/{year}"
 
 # Request Configuration
 DEFAULT_TIMEOUT = 30
-DEFAULT_HEADERS = {
-    "Referer": "https://www.cfl.ca/",
-    "Accept": "application/json, text/javascript, */*; q=0.01",
-}
-
-USER_AGENTS = [
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36",
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.1 Safari/605.1.15",
-    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36",
-]
 
 # API Parameters
 DEFAULT_SEASON = 2026
 DEFAULT_LIMIT = 100
 DEFAULT_PAGE = 1
-MIN_SEASON = 2023
+MIN_SEASON = 2016
 MAX_SEASON = 2026
-MAX_LEADERBOARD_PLAYERS = 10
 
-# Player Position Categories
-OFFENCE = "OFFENCE"
-DEFENCE = "DEFENCE"
-SPECIAL_TEAMS = "SPECIAL_TEAMS"
-
-
-def get_random_user_agent() -> str:
-    """Get a random user agent string."""
-    return random.choice(USER_AGENTS)
+# League leaders: number of players returned per stat category
+DEFAULT_LEADERS_COUNT = 3
+MAX_LEADERS_COUNT = 25
